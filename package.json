@@ -1,12 +1,14 @@
 {
   "name": "@codexteam/hawk.nodejs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Node.js catcher for Hawk",
   "main": "hawk.js",
   "directories": {
     "example": "example"
   },
   "dependencies": {
+    "es6-promise": "^4.2.4",
+    "eslint": "^4.19.1",
     "npm": "^5.8.0",
     "request": "^2.85.0"
   },
