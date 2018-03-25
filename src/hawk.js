@@ -50,7 +50,7 @@ let hawkCatcher = (function () {
   };
 
   /**
-   *Prepare error data for sending and send the to the Hawk Catcher API
+   * Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param errorText – Node.js Error object
    * @param {string} custom.comment – custom comment
