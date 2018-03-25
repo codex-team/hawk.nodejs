@@ -17,8 +17,8 @@ let hawkCatcher = (function () {
 
   /**
    * Initialize Hawk Catcher with config
-   * @param config.url {String} – Hawk API endpoint
-   * @param config.accessToken {String} – Access Token for Hawk Service
+   * @param {string} config.url – Hawk API endpoint
+   * @param {string} config.accessToken – Access Token for Hawk Service
    */
   let init = function (config) {
     accessToken = config.accessToken;
@@ -29,9 +29,9 @@ let hawkCatcher = (function () {
    * Convert error object to the format for Hawk catcher API
    *
    * @param error – Error object
-   * @param custom.comment {String} – custom comment
+   * @param {string} custom.comment – custom comment
    *
-   * @returns Object – hashmap with data prepared for the API endpoint
+   * @returns data prepared for the API endpoint
    */
   let prepare = function (error, custom={}) {
     let data = {
@@ -53,7 +53,7 @@ let hawkCatcher = (function () {
    *Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param errorText – Node.js Error object
-   * @param custom.comment {String} – custom comment
+   * @param {string} custom.comment – custom comment
    */
   let catchExceptionCallback = function (errorText, custom, callback) {
     request.post({
@@ -65,16 +65,16 @@ let hawkCatcher = (function () {
   /**
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
-   * @param errorText – Node.js Error object
-   * @param custom.comment {String} – custom comment
+   * @param errorObject – Node.js Error object
+   * @param {string} custom.comment – custom comment
    *
    * @returns Promise
    */
-  let catchExceptionPromise = function (errorText, custom) {
+  let catchExceptionPromise = function (errorObject, custom) {
     return new Promise(function (resolve, reject) {
       request.post({
         url: url,
-        form: prepare(errorText, custom)
+        form: prepare(errorObject, custom)
       }, function (error, response, body) {
         try {
           if (response.statusCode != 200) {
@@ -102,8 +102,8 @@ let hawkCatcher = (function () {
 /**
  * Initialize module with config if it is given. Return object otherwise.
  *
- * @param config.url {String} – Hawk API endpoint
- * @param config.accessToken {String} – Access Token for Hawk Service
+ * @param {string} config.url – Hawk API endpoint
+ * @param {string} config.accessToken – Access Token for Hawk Service
  */
 module.exports = function (config) {
   if (typeof config.accessToken !== 'undefined') {
