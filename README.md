@@ -11,7 +11,7 @@ Node.js errors Catcher module for [Hawk.so](https://hawk.so)
 Use [npm](https://www.npmjs.com) to install Catcher
 
 ```bash
-$ npm install @codexteam/hawk.nodejs
+$ npm install @codexteam/hawk.nodejs --save
 ```
 
 #### Download and require node.js file

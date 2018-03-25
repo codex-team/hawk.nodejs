@@ -1,7 +1,6 @@
 'use strict';
 
 let request = require('request');
-let Promise = require('es6-promise').Promise;
 
 /**
  * Hawk Node.js catcher
@@ -18,7 +17,8 @@ let hawkCatcher = (function () {
 
   /**
    * Initialize Hawk Catcher with config
-   * @param {url: String, accessToken: String} — configuration parameters
+   * @param config.url {String} – Hawk API endpoint
+   * @param config.accessToken {String} – Access Token for Hawk Service
    */
   let init = function (config) {
     accessToken = config.accessToken;
@@ -29,7 +29,7 @@ let hawkCatcher = (function () {
    * Convert error object to the format for Hawk catcher API
    *
    * @param error – Error object
-   * @param custom {comment: String} – custom parameters
+   * @param custom.comment {String} – custom comment
    *
    * @returns Object – hashmap with data prepared for the API endpoint
    */
@@ -53,7 +53,7 @@ let hawkCatcher = (function () {
    *Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param errorText – Node.js Error object
-   * @param custom {comment: String} – custom parameters
+   * @param custom.comment {String} – custom comment
    */
   let catchExceptionCallback = function (errorText, custom, callback) {
     request.post({
@@ -66,7 +66,7 @@ let hawkCatcher = (function () {
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param errorText – Node.js Error object
-   * @param custom {comment: String} – custom parameters
+   * @param custom.comment {String} – custom comment
    *
    * @returns Promise
    */
@@ -102,7 +102,8 @@ let hawkCatcher = (function () {
 /**
  * Initialize module with config if it is given. Return object otherwise.
  *
- * @param config – optional dictionary with {url: String, accessToken: String}
+ * @param config.url {String} – Hawk API endpoint
+ * @param config.accessToken {String} – Access Token for Hawk Service
  */
 module.exports = function (config) {
   if (typeof config.accessToken !== 'undefined') {
