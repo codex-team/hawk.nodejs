@@ -9,8 +9,8 @@ try {
   throw new Exception('');
 } catch (e) {
   hawkCatcher.catchExceptionPromise(e, {comment: 'Exception in general module'})
-    .then(function () {
-      console.log('Exception successfully sent to Hawk');
+    .then(function (result) {
+      console.log(result);
     })
     .catch(function (err) {
       console.log('Error occured: ', err);

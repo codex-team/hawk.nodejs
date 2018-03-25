@@ -1,6 +1,6 @@
 {
   "name": "@codexteam/hawk.nodejs",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Node.js catcher for Hawk",
   "main": "src/hawk.js",
   "directories": {
