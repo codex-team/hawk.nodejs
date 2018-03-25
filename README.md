@@ -11,7 +11,7 @@ Node.js errors Catcher module for [Hawk.so](https://hawk.so)
 Use [npm](https://www.npmjs.com) to install Catcher
 
 ```bash
-$ npm update
+$ npm install @codexteam/hawk.nodejs
 ```
 
 #### Download and require node.js file
@@ -19,7 +19,7 @@ $ npm update
 You can download this repository and require `Hawk.nodejs` file in your project.
 
 ```nodejs
-require './hawk.nodejs/hawk/hawk';
+require './hawk.nodejs/src/hawk';
 ```
 
 ### Init HawkCatcher
@@ -27,7 +27,7 @@ require './hawk.nodejs/hawk/hawk';
 Create an instance with token to the entry point of your project.
 
 ```nodejs
-var hawkCatcher = require('./hawk.nodejs/hawk/hawk')({
+var hawkCatcher = require('@codexteam/hawk.nodejs')({
   accessToken: "69d86244-f792-47ad-8e9a-23fee358e062"
 });
 ```
@@ -37,7 +37,7 @@ var hawkCatcher = require('./hawk.nodejs/hawk/hawk')({
 If you want to use custom Hawk server then pass a url to this catcher.
 
 ```nodejs
-var hawkCatcher = require('./hawk.nodejs/hawk/hawk')({
+var hawkCatcher = require('@codexteam/hawk.nodejs')({
   accessToken: "69d86244-f792-47ad-8e9a-23fee358e062",
   url: "https://myownhawk.com/catcher/nodejs"
 });
