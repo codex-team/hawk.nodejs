@@ -1,28 +1,48 @@
 'use strict';
 
-let requestPromise = require("request-promise");
 let request = require("request");
-let requestErrors = require('request-promise/errors');
 
+/**
+ * Hawk Node.js catcher
+ *
+ */
 let hawkCatcher = (function () {
 
-  let url = "http://localhost:3000/catcher/nodejs",
+  /**
+   * URL          – API endpoint
+   * AccessToken  – Token for project in hawk profile
+   * @type {string}
+   */
+  let url = "https://hawk.so/catcher/nodejs",
       accessToken = null;
 
+  /**
+   * Initialize Hawk Catcher with config
+   * @param {url: String, accessToken: String} — configuration parameters
+   */
   let init = function (config) {
     accessToken = config.accessToken;
     url = config.url || url;
   };
 
+  /**
+   * Convert error object to the format for Hawk catcher API
+   *
+   * @param error – Error object
+   * @param custom {comment: String} – custom parameters
+   *
+   * @returns Object – hashmap with data prepared for the API endpoint
+   */
   let prepare = function (error, custom={}) {
 
     let data = {
       token: accessToken,
       message: error.name + ": " + error.message,
       type: error.name,
-      tag: 'notice',
+      tag: "fatal",
       stack: error.stack,
       time: new Date().toISOString(),
+
       // custom params
       comment: custom.comment || ""
     };
@@ -30,6 +50,11 @@ let hawkCatcher = (function () {
     return data;
   };
 
+  /**
+   * Send data to Hawk Catcher API
+   *
+   * @param data – hashmap with data
+   */
   let send = function (data) {
 
     request.post({
@@ -41,17 +66,17 @@ let hawkCatcher = (function () {
 
         if (response.statusCode != 200) {
 
-          console.log("Backend return status: ", response.statusCode);
+          console.log("[HawkCatcher] Got status from Backend: ", response.statusCode);
 
         } else {
 
-          console.log("Received: ", body);
+          console.log("[HawkCatcher] Received: ", body);
 
         }
 
       } catch (err) {
 
-        console.log("Hawk exception: ", err);
+        console.log("[HawkCatcher] Exception: ", err);
 
       }
 
@@ -59,41 +84,31 @@ let hawkCatcher = (function () {
 
   };
 
-  let sendPromise = function (resolve, reject, options) {
-
-    requestPromise(options)
-      .then(function (parsedBody) {
-
-        console.log("Received: ", parsedBody);
-        resolve();
-
-      })
-      .catch(requestErrors.StatusCodeError, function (reason) {
-
-        console.log("Backend return status: ", reason.statusCode);
-        reject();
-
-      })
-      .catch(function (err) {
-
-        console.log("Hawk exception: ", err);
-        reject();
-
-      });
-
-  };
-
+  /**
+   * Prepare error data for sending and send the to the Hawk Catcher API
+   *
+   * @param error – Node.js Error object
+   * @param custom {comment: String} – custom parameters
+   */
   let catchException = function (error, custom) {
 
     send(prepare(error, custom))
 
   };
 
+  /**
+   * Prepare error data for sending and send the to the Hawk Catcher API
+   *
+   * @param error – Node.js Error object
+   * @param custom {comment: String} – custom parameters
+   *
+   * @returns Promise
+   */
   let catchExceptionPromise = function (error) {
 
     return new Promise(function(resolve, reject) {
 
-      return sendPromise(resolve, reject, prepare(error, custom));
+      return resolve(send(prepare(error, custom)));
 
     });
 
@@ -107,6 +122,11 @@ let hawkCatcher = (function () {
 
 })();
 
+/**
+ * Initialize module with config if it is given. Return object otherwise.
+ *
+ * @param config – optional dictionary with {url: String, accessToken: String}
+ */
 module.exports = function (config) {
 
   if (typeof config.accessToken !== 'undefined') {
