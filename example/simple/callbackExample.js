@@ -1,6 +1,6 @@
 'use strict';
 
-var hawkCatcher = require('../../hawk/hawk')({
+var hawkCatcher = require('../../src/hawk')({
     accessToken: '69d86244-f792-47ad-8e9a-23fee358e062',
     url: 'http://localhost:3000/catcher/nodejs'
 });
