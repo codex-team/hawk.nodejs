@@ -78,12 +78,12 @@ let hawkCatcher = (function () {
       }, function (error, response, body) {
         try {
           if (response.statusCode != 200) {
-            reject('[HawkCatcher] Got status from Backend: ', response.statusCode);
+            reject('[HawkCatcher] Got status from Backend: ' + response.statusCode);
           } else {
-            resolve('[HawkCatcher] Received: ', body);
+            resolve('[HawkCatcher] Received: ' + body);
           }
         } catch (err) {
-          reject('[HawkCatcher] Exception: ', err);
+          reject('[HawkCatcher] Exception: ' + err);
         }
       });
     });
