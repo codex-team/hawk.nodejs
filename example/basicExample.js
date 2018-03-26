@@ -7,5 +7,5 @@ var hawkCatcher = require('@codexteam/hawk.nodejs')({
 try {
   throw new Exception('');
 } catch (e) {
-  hawkCatcher.catchExceptionCallback(e, {comment: 'Exception in general module'});
+  hawkCatcher.catchException(e, {comment: 'Exception in general module'});
 }

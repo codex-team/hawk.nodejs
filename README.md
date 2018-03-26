@@ -55,6 +55,30 @@ try {
 }
 ```
 
+The catchException method has two optional arguments:
+* custom - [optional] dictionary with the following structure
+  * comment - error description
+* callback - [optional] callback function
+
+```nodejs
+try {
+  throw new Exception('');
+} catch (e) {
+  hawkCatcher.catchExceptionPromise(e, {comment: 'Exception in general module'})
+    .then(function (result) {
+      console.log(result);
+    })
+    .catch(function (err) {
+      console.log('Error occured: ', err);
+    });
+}
+```
+
+The catchExceptionPromise method returns Promise and has one optional argument:
+* custom - [optional] dictionary with the following structure
+  * comment - error description
+
+
 ## Links
 
 Repository: https://github.com/codex-team/hawk.nodejs

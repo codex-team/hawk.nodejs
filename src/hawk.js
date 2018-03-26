@@ -17,6 +17,7 @@ let hawkCatcher = (function () {
 
   /**
    * Initialize Hawk Catcher with config
+   * @param {Object} config - configuration parameters
    * @param {string} config.url – Hawk API endpoint
    * @param {string} config.accessToken – Access Token for Hawk Service
    */
@@ -28,7 +29,7 @@ let hawkCatcher = (function () {
   /**
    * Convert error object to the format for Hawk catcher API
    *
-   * @param error – Error object
+   * @param {Object} error – Error object
    * @param {string} custom.comment – custom comment
    *
    * @returns data prepared for the API endpoint
@@ -38,7 +39,6 @@ let hawkCatcher = (function () {
       token: accessToken,
       message: error.name + ': ' + error.message,
       type: error.name,
-      tag: 'fatal',
       stack: error.stack,
       time: new Date().toISOString(),
 
@@ -52,21 +52,22 @@ let hawkCatcher = (function () {
   /**
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
-   * @param errorText – Node.js Error object
-   * @param {string} custom.comment – custom comment
+   * @param {Object} errorObject – Node.js Error object
+   * @param {string=} custom.comment – custom error description
+   * @param {function=} callback – callback function
    */
-  let catchExceptionCallback = function (errorText, custom={}, callback=()) {
+  let catchException = function (errorObject, custom={}, callback) {
     request.post({
       url: url,
-      form: prepare(errorText, custom)
+      form: prepare(errorObject, custom)
     }, callback);
   };
 
   /**
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
-   * @param errorObject – Node.js Error object
-   * @param {string} custom.comment – custom comment
+   * @param {Object} errorObject – Node.js Error object
+   * @param {string=} custom.comment – custom error description
    *
    * @returns Promise
    */
@@ -99,6 +100,7 @@ let hawkCatcher = (function () {
 /**
  * Initialize module with config if it is given. Return object otherwise.
  *
+ * @param {Object} config - configuration paramenters
  * @param {string} config.url – Hawk API endpoint
  * @param {string} config.accessToken – Access Token for Hawk Service
  */
