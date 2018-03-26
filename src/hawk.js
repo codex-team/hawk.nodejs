@@ -92,7 +92,7 @@ let hawkCatcher = (function () {
 
   return {
     init,
-    catchExceptionCallback,
+    catchException,
     catchExceptionPromise
   };
 })();
