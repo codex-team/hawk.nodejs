@@ -55,7 +55,7 @@ let hawkCatcher = (function () {
    * @param errorText – Node.js Error object
    * @param {string} custom.comment – custom comment
    */
-  let catchExceptionCallback = function (errorText, custom, callback) {
+  let catchExceptionCallback = function (errorText, custom={}, callback=()) {
     request.post({
       url: url,
       form: prepare(errorText, custom)
@@ -70,7 +70,7 @@ let hawkCatcher = (function () {
    *
    * @returns Promise
    */
-  let catchExceptionPromise = function (errorObject, custom) {
+  let catchExceptionPromise = function (errorObject, custom={}) {
     return new Promise(function (resolve, reject) {
       request.post({
         url: url,
