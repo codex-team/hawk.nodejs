@@ -94,6 +94,18 @@ process.on('unhandledRejection', function(err) {
 UndefinedMethod();
 ```
 
+Instead of defining uncaughtException and unhandledRejection you can call
+```nodejs
+hawkCatcher.initGlobalCatcher();
+```
+
+If you provide callback function – it will be called after Exception would be caught by Hawk.
+```nodejs
+hawkCatcher.initGlobalCatcher(function (error, response, body) {
+  console.log('Hawk response: ', body);
+});
+```
+
 
 ## Links
 
