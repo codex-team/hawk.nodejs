@@ -8,14 +8,16 @@ var hawkCatcher = require('@codexteam/hawk.nodejs')({
 
 
 // Intercept global Exceptions
-process.on('uncaughtException', function(err) {
+process.on('uncaughtException', function (err) {
   hawkCatcher.catchException(err);
 });
 
-process.on('unhandledRejection', function(err) {
+process.on('unhandledRejection', function (err) {
   hawkCatcher.catchException(err);
 });
 
+// or you can simply call with or without optional callback as argument
+// hawkCatcher.initGlobalCatcher();
 
 // Try to execute undefined method to illustrate an Exception
 UndefinedMethod();
