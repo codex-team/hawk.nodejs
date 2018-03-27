@@ -53,10 +53,10 @@ let hawkCatcher = (function () {
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param {Object} errorObject – Node.js Error object
-   * @param {function} [callback] – callback function
    * @param {string} [custom.comment] – custom error description
+   * @param {function} [callback] – callback function
    */
-  let catchException = function (errorObject, callback, custom={}) {
+  let catchException = function (errorObject, custom={}, callback) {
     request.post({
       url: url,
       form: prepare(errorObject, custom)
@@ -97,11 +97,11 @@ let hawkCatcher = (function () {
     const process = require('process');
 
     process.on('uncaughtException', function (err) {
-      hawkCatcher.catchException(err, callback);
+      hawkCatcher.catchException(err, {}, callback);
     });
 
     process.on('unhandledRejection', function (err) {
-      hawkCatcher.catchException(err, callback);
+      hawkCatcher.catchException(err, {}, callback);
     });
   };
 
