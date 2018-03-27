@@ -43,7 +43,21 @@ var hawkCatcher = require('@codexteam/hawk.nodejs')({
 });
 ```
 
-### Catch exception
+### Usage
+
+You can catch global Exceptions
+```nodejs
+hawkCatcher.initGlobalCatcher();
+```
+
+If you provide callback function – it will be called after Exception would be caught by Hawk.
+```nodejs
+hawkCatcher.initGlobalCatcher(function (error, response, body) {
+  console.log('Hawk response: ', body);
+});
+```
+
+### Catch exception manually
 
 You can catch exceptions by yourself without enabling handlers.
 
@@ -77,7 +91,6 @@ try {
 The catchExceptionPromise method returns Promise and has one optional argument:
 * custom - [optional] dictionary with the following structure
   * comment - error description
-
 
 ## Links
 

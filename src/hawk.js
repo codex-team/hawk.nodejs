@@ -53,10 +53,10 @@ let hawkCatcher = (function () {
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param {Object} errorObject – Node.js Error object
-   * @param {string=} custom.comment – custom error description
-   * @param {function=} callback – callback function
+   * @param {function} [callback] – callback function
+   * @param {string} [custom.comment] – custom error description
    */
-  let catchException = function (errorObject, custom={}, callback) {
+  let catchException = function (errorObject, callback, custom={}) {
     request.post({
       url: url,
       form: prepare(errorObject, custom)
@@ -67,7 +67,7 @@ let hawkCatcher = (function () {
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param {Object} errorObject – Node.js Error object
-   * @param {string=} custom.comment – custom error description
+   * @param {string} [custom.comment] – custom error description
    *
    * @returns Promise
    */
@@ -90,8 +90,24 @@ let hawkCatcher = (function () {
     });
   };
 
+  /**
+   * Start intercepting Exceptions and send them to Hawk Catcher
+   */
+  let initGlobalCatcher = function (callback) {
+    const process = require('process');
+
+    process.on('uncaughtException', function (err) {
+      hawkCatcher.catchException(err, callback);
+    });
+
+    process.on('unhandledRejection', function (err) {
+      hawkCatcher.catchException(err, callback);
+    });
+  };
+
   return {
     init,
+    initGlobalCatcher,
     catchException,
     catchExceptionPromise
   };
