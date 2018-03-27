@@ -1,0 +1,28 @@
+{
+  "name": "@codexteam/hawk.nodejs",
+  "version": "1.0.9",
+  "description": "Node.js catcher for Hawk",
+  "main": "src/hawk.js",
+  "directories": {
+    "example": "example"
+  },
+  "dependencies": {
+    "eslint": "^4.19.1",
+    "npm": "^5.8.0",
+    "request": "^2.85.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codex-team/hawk.nodejs.git"
+  },
+  "author": "CodeX (https://ifmo.su)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codex-team/hawk.nodejs/issues"
+  },
+  "homepage": "https://github.com/codex-team/hawk.nodejs#readme"
+}
