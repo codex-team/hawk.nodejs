@@ -78,23 +78,7 @@ The catchExceptionPromise method returns Promise and has one optional argument:
 * custom - [optional] dictionary with the following structure
   * comment - error description
 
-You can also intercept global Exceptions
-
-```nodejs
-// Intercept global Exceptions
-process.on('uncaughtException', function(err) {
-  hawkCatcher.catchException(err);
-});
-
-process.on('unhandledRejection', function(err) {
-  hawkCatcher.catchException(err);
-});
-
-// Try to execute undefined method to illustrate an Exception
-UndefinedMethod();
-```
-
-Instead of defining uncaughtException and unhandledRejection you can call
+You can also catch global Exceptions
 ```nodejs
 hawkCatcher.initGlobalCatcher();
 ```
@@ -106,6 +90,16 @@ hawkCatcher.initGlobalCatcher(function (error, response, body) {
 });
 ```
 
+initGlobalCatcher method just handle uncaughtException and unhandledRejection
+```nodejs
+process.on('uncaughtException', function(err) {
+  hawkCatcher.catchException(err);
+});
+
+process.on('unhandledRejection', function(err) {
+  hawkCatcher.catchException(err);
+});
+```
 
 ## Links
 
