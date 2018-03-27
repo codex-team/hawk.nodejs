@@ -57,17 +57,6 @@ hawkCatcher.initGlobalCatcher(function (error, response, body) {
 });
 ```
 
-initGlobalCatcher method just handle uncaughtException and unhandledRejection
-```nodejs
-process.on('uncaughtException', function(err) {
-  hawkCatcher.catchException(err);
-});
-
-process.on('unhandledRejection', function(err) {
-  hawkCatcher.catchException(err);
-});
-```
-
 ### Catch exception manually
 
 You can catch exceptions by yourself without enabling handlers.
