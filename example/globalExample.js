@@ -1,7 +1,5 @@
 'use strict';
 
-const process = require('process');
-
 var hawkCatcher = require('@codexteam/hawk.nodejs')({
   accessToken: '69d86244-f792-47ad-8e9a-23fee358e062'
 });
