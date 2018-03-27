@@ -53,8 +53,8 @@ let hawkCatcher = (function () {
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param {Object} errorObject – Node.js Error object
-   * @param {function=} callback – callback function
-   * @param {string=} custom.comment – custom error description
+   * @param {function} [callback] – callback function
+   * @param {string} [custom.comment] – custom error description
    */
   let catchException = function (errorObject, callback, custom={}) {
     request.post({
@@ -67,7 +67,7 @@ let hawkCatcher = (function () {
    * Prepare error data for sending and send the to the Hawk Catcher API
    *
    * @param {Object} errorObject – Node.js Error object
-   * @param {string=} custom.comment – custom error description
+   * @param {string} [custom.comment] – custom error description
    *
    * @returns Promise
    */
