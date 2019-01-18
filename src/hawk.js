@@ -27,6 +27,7 @@ let hawkCatcher = (function () {
   let init = function (config) {
     accessToken = config.accessToken;
     url = config.url || url;
+    externalIp = '127.0.0.1';
     publicIp.v4().then((ip) => {
       externalIp = ip;
     });
