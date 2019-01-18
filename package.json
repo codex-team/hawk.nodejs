@@ -9,6 +9,7 @@
   "dependencies": {
     "eslint": "^4.19.1",
     "npm": "^5.8.0",
+    "public-ip": "^3.0.0",
     "request": "^2.85.0"
   },
   "devDependencies": {},

@@ -1,6 +1,7 @@
 'use strict';
 
-let request = require('request');
+const request = require('request');
+const publicIp = require('public-ip');
 
 /**
  * Hawk Node.js catcher
@@ -10,10 +11,12 @@ let hawkCatcher = (function () {
   /**
    * URL          – API endpoint
    * AccessToken  – Token for project in hawk profile
+   * ExternalIp   - External ip for sender field
    * @type {string}
    */
   let url = 'https://hawk.so/catcher/nodejs',
-      accessToken = null;
+      accessToken = null,
+      externalIp = null;
 
   /**
    * Initialize Hawk Catcher with config
@@ -24,6 +27,9 @@ let hawkCatcher = (function () {
   let init = function (config) {
     accessToken = config.accessToken;
     url = config.url || url;
+    publicIp.v4().then((ip) => {
+      externalIp = ip;
+    });
   };
 
   /**
@@ -37,13 +43,18 @@ let hawkCatcher = (function () {
   let prepare = function (error, custom={}) {
     let data = {
       token: accessToken,
-      message: error.name + ': ' + error.message,
-      type: error.name,
-      stack: error.stack,
-      time: new Date().toISOString(),
+      sender: {
+        ip: externalIp
+      },
+      payload: {
+        message: error.name + ': ' + error.message,
+        type: error.name,
+        stack: error.stack,
+        time: new Date().toISOString(),
 
-      // custom params
-      comment: custom.comment || ''
+        // custom params
+        comment: custom.comment || ''
+      }
     };
 
     return data;
