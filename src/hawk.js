@@ -46,6 +46,7 @@ let hawkCatcher = (function () {
       sender: {
         ip: externalIp
       },
+      catcher_type: 'errors/nodejs',
       payload: {
         message: error.name + ': ' + error.message,
         type: error.name,
@@ -70,7 +71,8 @@ let hawkCatcher = (function () {
   let catchException = function (errorObject, custom={}, callback) {
     request.post({
       url: url,
-      form: prepare(errorObject, custom)
+      body: prepare(errorObject, custom),
+      json: true
     }, callback);
   };
 
@@ -86,7 +88,8 @@ let hawkCatcher = (function () {
     return new Promise(function (resolve, reject) {
       request.post({
         url: url,
-        form: prepare(errorObject, custom)
+        body: prepare(errorObject, custom),
+        json: true
       }, function (error, response, body) {
         try {
           if (response.statusCode != 200) {
