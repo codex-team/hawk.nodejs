@@ -1,7 +1,6 @@
 'use strict';
 
 const request = require('request');
-const publicIp = require('public-ip');
 
 /**
  * Hawk Node.js catcher
@@ -15,8 +14,7 @@ let hawkCatcher = (function () {
    * @type {string}
    */
   let url = 'https://hawk.so/catcher/nodejs',
-      accessToken = null,
-      externalIp = null;
+      accessToken = null;
 
   /**
    * Initialize Hawk Catcher with config
@@ -27,10 +25,6 @@ let hawkCatcher = (function () {
   let init = function (config) {
     accessToken = config.accessToken;
     url = config.url || url;
-    externalIp = '127.0.0.1';
-    publicIp.v4().then((ip) => {
-      externalIp = ip;
-    });
   };
 
   /**
@@ -41,12 +35,9 @@ let hawkCatcher = (function () {
    *
    * @returns data prepared for the API endpoint
    */
-  let prepare = function (error, custom={}) {
+  let prepare = function (error, custom = {}) {
     let data = {
       token: accessToken,
-      sender: {
-        ip: externalIp
-      },
       catcher_type: 'errors/nodejs',
       payload: {
         message: error.name + ': ' + error.message,
@@ -55,7 +46,7 @@ let hawkCatcher = (function () {
         time: new Date().toISOString(),
 
         // custom params
-        comment: custom.comment || ''
+        context: custom.comment || ''
       }
     };
 
@@ -69,12 +60,15 @@ let hawkCatcher = (function () {
    * @param {string} [custom.comment] – custom error description
    * @param {function} [callback] – callback function
    */
-  let catchException = function (errorObject, custom={}, callback) {
-    request.post({
-      url: url,
-      body: prepare(errorObject, custom),
-      json: true
-    }, callback);
+  let catchException = function (errorObject, custom = {}, callback) {
+    request.post(
+      {
+        url: url,
+        body: prepare(errorObject, custom),
+        json: true
+      },
+      callback
+    );
   };
 
   /**
@@ -85,23 +79,28 @@ let hawkCatcher = (function () {
    *
    * @returns Promise
    */
-  let catchExceptionPromise = function (errorObject, custom={}) {
+  let catchExceptionPromise = function (errorObject, custom = {}) {
     return new Promise(function (resolve, reject) {
-      request.post({
-        url: url,
-        body: prepare(errorObject, custom),
-        json: true
-      }, function (error, response, body) {
-        try {
-          if (response.statusCode != 200) {
-            reject('[HawkCatcher] Got status from Backend: ' + response.statusCode);
-          } else {
-            resolve('[HawkCatcher] Received: ' + body);
+      request.post(
+        {
+          url: url,
+          body: prepare(errorObject, custom),
+          json: true
+        },
+        function (error, response, body) {
+          try {
+            if (response.statusCode != 200) {
+              reject(
+                '[HawkCatcher] Got status from Backend: ' + response.statusCode
+              );
+            } else {
+              resolve('[HawkCatcher] Received: ' + body);
+            }
+          } catch (err) {
+            reject('[HawkCatcher] Exception: ' + err);
           }
-        } catch (err) {
-          reject('[HawkCatcher] Exception: ' + err);
         }
-      });
+      );
     });
   };
 

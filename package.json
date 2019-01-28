@@ -1,6 +1,6 @@
 {
   "name": "@codexteam/hawk.nodejs",
-  "version": "1.2.0",
+  "version": "2.0.0-alpha",
   "description": "Node.js catcher for Hawk",
   "main": "src/hawk.js",
   "directories": {
@@ -8,10 +8,11 @@
   },
   "dependencies": {
     "eslint": "^4.19.1",
-    "public-ip": "^3.0.0",
     "request": "^2.85.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint-config-codex": "github:codex-team/eslint-config"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
