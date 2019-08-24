@@ -38,7 +38,7 @@ let hawkCatcher = (function () {
   let prepare = function (error, custom = {}) {
     let data = {
       token: accessToken,
-      catcher_type: 'errors/nodejs',
+      catcherType: 'errors/nodejs',
       payload: {
         message: error.name + ': ' + error.message,
         type: error.name,
