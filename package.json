@@ -2,16 +2,18 @@
   "name": "@codexteam/hawk.nodejs",
   "version": "2.0.0-alpha",
   "description": "Node.js catcher for Hawk",
-  "main": "src/hawk.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "directories": {
     "example": "example"
   },
   "dependencies": {
+    "@types/node": "^13.13.5",
     "request": "^2.85.0"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
-    "eslint-config-codex": "github:codex-team/eslint-config",
+    "eslint": "^7.0.0",
+    "eslint-config-codex": "^1.3.5",
     "typescript": "^3.8.3"
   },
   "scripts": {

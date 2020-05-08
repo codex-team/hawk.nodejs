@@ -1,11 +1,12 @@
 'use strict';
 
-var hawkCatcher = require('@codexteam/hawk.nodejs')({
-  accessToken: '69d86244-f792-47ad-8e9a-23fee358e062'
+const hawkCatcher = require('../dist').default;
+
+const catcher = new hawkCatcher({
+  accessToken: '69d86244-f792-47ad-8e9a-23fee358e062',
+  collectorEndpoint: 'https://localhost:3000/'
 });
 
-try {
-  throw new Exception('');
-} catch (e) {
-  hawkCatcher.catchException(e, {comment: 'Exception in general module'});
-}
+conosle.log(catcher);
+
+throw new Exception('');
