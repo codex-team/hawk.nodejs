@@ -1,4 +1,4 @@
-import request from 'request';
+import axios from 'axios';
 import { HawkEvent } from '../../types/hawk-event';
 
 /**
@@ -22,11 +22,6 @@ export default class Transport {
    * @param event
    */
   public async send(event: HawkEvent): Promise<void> {
-    await request.post({
-      url: this.url,
-      body: event,
-      json: true,
-    }
-    );
+    await axios.post(this.url, event);
   }
 }

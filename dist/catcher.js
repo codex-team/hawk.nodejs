@@ -8,28 +8,55 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-const transport_1 = require("./modules/transport");
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+exports.__esModule = true;
+var transport_1 = require("./modules/transport");
 /**
  * Hawk Node.js Catcher
  * Module for errors and exceptions tracking
  *
  * @copyright CodeX
  */
-class Catcher {
+var Catcher = /** @class */ (function () {
     /**
      * Catcher constructor
      *
      * @param settings - if settings is a string, it means an Integration Token
      */
-    constructor(settings) {
+    function Catcher(settings) {
         /**
          * Catcher Type
          */
         this.type = 'errors/nodejs';
         if (typeof settings === 'string') {
             settings = {
-                token: settings,
+                token: settings
             };
         }
         this.token = settings.token;
@@ -37,7 +64,7 @@ class Catcher {
         /**
          * Init transport
          */
-        this.transport = new transport_1.default(settings.collectorEndpoint || 'https://k1.hawk.so/');
+        this.transport = new transport_1["default"](settings.collectorEndpoint || 'https://k1.hawk.so/');
         /**
          * Set handlers
          */
@@ -46,50 +73,68 @@ class Catcher {
     /**
      * Init global errors handler
      */
-    initGlobalHandlers() {
-        process.on('uncaughtException', (event) => {
-            this.handleEvent(event);
+    Catcher.prototype.initGlobalHandlers = function () {
+        var _this = this;
+        process.on('uncaughtException', function (event) {
+            _this.handleEvent(event);
         });
-        process.on('unhandledRejection', (event) => {
-            this.handleEvent(event);
+        process.on('unhandledRejection', function (event) {
+            _this.handleEvent(event);
         });
-    }
+    };
     /**
      * Event handler
      *
      * @param event - handled error
      */
-    handleEvent(event) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield this.formatAndSend(event);
+    Catcher.prototype.handleEvent = function (event) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.formatAndSend(event)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
-    }
+    };
     /**
      * Formatting error and send it to collector
      *
      * @param error - error for sending
      */
-    formatAndSend(error) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const preparedEvent = this.prepareErrorFormatted(error);
-            yield this.transport.send(preparedEvent);
+    Catcher.prototype.formatAndSend = function (error) {
+        return __awaiter(this, void 0, void 0, function () {
+            var preparedEvent;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        preparedEvent = this.prepareErrorFormatted(error);
+                        return [4 /*yield*/, this.transport.send(preparedEvent)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
-    }
+    };
     /**
      * Prepare error to hawk event format
      *
      * @param error - error for preparing
      */
-    prepareErrorFormatted(error) {
+    Catcher.prototype.prepareErrorFormatted = function (error) {
         return {
             catcherType: this.type,
             payload: {
                 title: error.message,
                 type: error.name,
-                backtrace: error.stack,
+                backtrace: error.stack
             },
-            token: this.token,
+            token: this.token
         };
-    }
-}
-exports.default = Catcher;
+    };
+    return Catcher;
+}());
+exports["default"] = Catcher;

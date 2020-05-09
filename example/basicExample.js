@@ -1,12 +1,10 @@
 'use strict';
 
-const hawkCatcher = require('../dist').default;
+const HawkCatcher = require('../dist/index').default;
 
-const catcher = new hawkCatcher({
-  accessToken: '69d86244-f792-47ad-8e9a-23fee358e062',
-  collectorEndpoint: 'https://localhost:3000/'
+const catcher = new HawkCatcher({
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9qZWN0SWQiOiI1ZWIxYzIwNzUyZWQ2ZDAwNjczNmU0MDUiLCJpYXQiOjE1ODg3MDc4NDd9.KHwEsmpMrxQGyvQqkQWv1tsTmookntyEsFsk5f2LZkU',
+  collectorEndpoint: 'http://localhost:3000/',
 });
 
-conosle.log(catcher);
-
-throw new Exception('');
+UndefinedMethod();

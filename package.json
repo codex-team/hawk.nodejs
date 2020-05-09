@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@types/node": "^13.13.5",
-    "request": "^2.85.0"
+    "axios": "^0.19.2"
   },
   "devDependencies": {
     "eslint": "^7.0.0",
@@ -17,7 +17,7 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
