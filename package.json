@@ -2,8 +2,12 @@
   "name": "@hawk.so/nodejs",
   "version": "2.0.0",
   "description": "Node.js catcher for Hawk",
-  "main": "src/index.ts",
-  "types": "./dist/index.d.ts",
+  "main": "./build/index.js",
+  "types": "./types/index.d.ts",
+  "scripts": {
+    "build": "tsc-watch",
+    "dev": "node ./example/example.js"
+  },
   "dependencies": {
     "axios": "^0.19.2"
   },
@@ -13,13 +17,8 @@
     "tsc-watch": "^4.2.8",
     "typescript": "^3.8.3"
   },
-  "scripts": {
-    "build": "tsc-watch",
-    "dev": "node ./example/example.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/codex-team/hawk.nodejs.git"
-  },
-  "author": "CodeX (https://ifmo.su)"
+  }
 }
