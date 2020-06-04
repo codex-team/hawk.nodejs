@@ -1,28 +1,25 @@
 {
-  "name": "@codexteam/hawk.nodejs",
-  "version": "1.2.0",
+  "name": "@hawk.so/nodejs",
+  "version": "2.0.0",
   "description": "Node.js catcher for Hawk",
-  "main": "src/hawk.js",
-  "directories": {
-    "example": "example"
-  },
+  "main": "src/index.ts",
+  "types": "./dist/index.d.ts",
   "dependencies": {
-    "eslint": "^4.19.1",
-    "npm": "^5.8.0",
-    "request": "^2.85.0"
+    "axios": "^0.19.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/node": "^14.0.9",
+    "stack-trace": "^0.0.10",
+    "tsc-watch": "^4.2.8",
+    "typescript": "^3.8.3"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc-watch",
+    "dev": "node ./example/example.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/codex-team/hawk.nodejs.git"
   },
-  "author": "CodeX (https://ifmo.su)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/codex-team/hawk.nodejs/issues"
-  },
-  "homepage": "https://github.com/codex-team/hawk.nodejs#readme"
+  "author": "CodeX (https://ifmo.su)"
 }
