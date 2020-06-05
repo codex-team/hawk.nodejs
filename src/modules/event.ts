@@ -1,5 +1,5 @@
-import { BacktraceFrame } from "../../types";
-import BacktraceHelper from "./backtrace";
+import { BacktraceFrame } from '../../types';
+import BacktraceHelper from './backtrace';
 
 /**
  * Helper for getting error data

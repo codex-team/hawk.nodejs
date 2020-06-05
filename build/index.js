@@ -117,8 +117,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                 payload: {
                     title: eventError.getTitle(),
                     type: eventError.getType(),
-                    backtrace: eventError.getBacktrace()
-                }
+                    backtrace: eventError.getBacktrace(),
+                },
             });
         }
         /**

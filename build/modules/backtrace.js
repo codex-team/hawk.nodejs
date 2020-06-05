@@ -67,7 +67,7 @@
                 line: frame.lineNumber,
                 column: frame.columnNumber,
                 function: frame.functionName,
-                sourceCode: sourceCode
+                sourceCode: sourceCode,
             };
         }
         /**
@@ -77,10 +77,10 @@
          * @returns {boolean}
          */
         isInternal(frame) {
-            const hasEntriesForNonInternalCalls = frame.fileName
-                && frame.fileName.indexOf(':\\') !== 1
-                && !frame.fileName.startsWith('.')
-                && !frame.fileName.startsWith('/');
+            const hasEntriesForNonInternalCalls = frame.fileName &&
+                frame.fileName.indexOf(':\\') !== 1 &&
+                !frame.fileName.startsWith('.') &&
+                !frame.fileName.startsWith('/');
             return frame.native || !!hasEntriesForNonInternalCalls;
         }
         /**

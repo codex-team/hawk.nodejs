@@ -1,5 +1,5 @@
-import {BacktraceFrame, SourceCodeLine} from "../../types";
-import {StackTraceFrame} from "../../types/stack-trace";
+import { BacktraceFrame, SourceCodeLine } from '../../types';
+import { StackTraceFrame } from '../../types/stack-trace';
 const stackTrace = require('stack-trace');
 const fs = require('fs');
 
@@ -7,7 +7,7 @@ const fs = require('fs');
  * Number of file lines before and after errored line
  * to be read and send to Hawk for better event view
  */
-const LINES_BUFFER: number = 8;
+const LINES_BUFFER = 8;
 
 /**
  * Parsing and formatting error's backtrace
@@ -62,7 +62,7 @@ export default class BacktraceHelper {
      * Get source file for non-internal call frames
      */
     if (!this.isInternal(frame) && frame.fileName && frame.lineNumber) {
-      sourceCode = this.getFileChunk(frame.fileName, frame.lineNumber)
+      sourceCode = this.getFileChunk(frame.fileName, frame.lineNumber);
     }
 
     /** Push backtrace frame */
@@ -71,7 +71,7 @@ export default class BacktraceHelper {
       line: frame.lineNumber,
       column: frame.columnNumber,
       function: frame.functionName,
-      sourceCode: sourceCode
+      sourceCode: sourceCode,
     };
   }
 
@@ -82,10 +82,10 @@ export default class BacktraceHelper {
    * @returns {boolean}
    */
   private isInternal(frame: StackTraceFrame): boolean {
-    const hasEntriesForNonInternalCalls = frame.fileName
-      && frame.fileName.indexOf(':\\') !== 1
-      && !frame.fileName.startsWith('.')
-      && !frame.fileName.startsWith('/');
+    const hasEntriesForNonInternalCalls = frame.fileName &&
+      frame.fileName.indexOf(':\\') !== 1 &&
+      !frame.fileName.startsWith('.') &&
+      !frame.fileName.startsWith('/');
 
     return frame.native || !!hasEntriesForNonInternalCalls;
   }

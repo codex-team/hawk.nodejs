@@ -1,4 +1,4 @@
-import {HawkEvent, HawkNodeJSInitialSettings} from '../types';
+import { HawkEvent, HawkNodeJSInitialSettings } from '../types';
 import ErrorEvent from './modules/event';
 const axios = require('axios').default;
 
@@ -14,7 +14,6 @@ const DEFAULT_EVENT_COLLECTOR_URL = 'https://k1.hawk.so/';
  * @copyright CodeX
  */
 export default class HawkCatcher {
-
   /**
    * Catcher Type
    */
@@ -71,7 +70,7 @@ export default class HawkCatcher {
       this.catch(err);
     });
 
-    global.process.on('unhandledRejection',  (err: Error | undefined) => {
+    global.process.on('unhandledRejection', (err: Error | undefined) => {
       console.error('This error occurred either because an error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch (). Promise rejected due to:', err);
     });
   };
@@ -119,8 +118,8 @@ export default class HawkCatcher {
       payload: {
         title: eventError.getTitle(),
         type: eventError.getType(),
-        backtrace: eventError.getBacktrace()
-      }
+        backtrace: eventError.getBacktrace(),
+      },
     });
   }
 
@@ -135,7 +134,7 @@ export default class HawkCatcher {
         /** Well done, do nothing */
       )
       .catch((err: Error) => {
-        console.error(`[Hawk] Cannot send an event because of ${err.toString()}`)
+        console.error(`[Hawk] Cannot send an event because of ${err.toString()}`);
       });
   }
 }
