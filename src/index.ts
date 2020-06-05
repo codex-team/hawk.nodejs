@@ -1,8 +1,6 @@
-import {SourceCodeLine, BacktraceFrame, HawkEvent, HawkInitialSettings} from '../types/index';
-import {CallSiteObject, StackTraceFrame} from "../types/stack-trace";
+import {HawkEvent, HawkNodeJSInitialSettings} from '../types';
+import ErrorEvent from './modules/event';
 const axios = require('axios').default;
-const stackTrace = require('stack-trace');
-const fs = require('fs');
 
 /**
  * Default Collector's URL
@@ -10,18 +8,12 @@ const fs = require('fs');
 const DEFAULT_EVENT_COLLECTOR_URL = 'https://k1.hawk.so/';
 
 /**
- * Number of file lines before and after errored line
- * to be read and send to Hawk for better event view
- */
-const LINES_BUFFER: number = 5;
-
-/**
  * Hawk NodeJS Catcher
  * Module for errors and exceptions tracking
  *
  * @copyright CodeX
  */
-export default class Catcher {
+export default class HawkCatcher {
 
   /**
    * Catcher Type
@@ -41,13 +33,13 @@ export default class Catcher {
   /**
    * Catcher constructor
    *
-   * @param {HawkInitialSettings|string} settings - If settings is a string, it means an Integration Token
+   * @param {HawkNodeJSInitialSettings|string} settings - If settings is a string, it means an Integration Token
    */
-  constructor(settings: HawkInitialSettings | string) {
+  constructor(settings: HawkNodeJSInitialSettings | string) {
     if (typeof settings === 'string') {
       settings = {
         token: settings,
-      } as HawkInitialSettings;
+      } as HawkNodeJSInitialSettings;
     }
 
     this.token = settings.token;
@@ -67,14 +59,20 @@ export default class Catcher {
    * Define own error handlers
    */
   private initGlobalHandlers(): void {
-    const process = require('process');
+    global.process.on('uncaughtException', (err: Error) => {
+      /**
+       * Show error data in console
+       */
+      console.error(err);
 
-    process.on('uncaughtException', (err: Error) => {
-      this.catchError(err);
+      /**
+       * Process error catching
+       */
+      this.catch(err);
     });
 
-    process.on('unhandledRejection',  (err: Error) => {
-      this.catchError(err);
+    global.process.on('unhandledRejection',  (err: Error | undefined) => {
+      console.error('This error occurred either because an error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch (). Promise rejected due to:', err);
     });
   };
 
@@ -82,9 +80,16 @@ export default class Catcher {
    * Send test event from client
    */
   public test(): void {
+    /**
+     * Create a dummy error event
+     * Error: Hawk NodeJS Catcher test message
+     */
     const fakeEvent = new Error('Hawk NodeJS Catcher test message');
 
-    this.catchError(fakeEvent);
+    /**
+     * Catch it and send to Hawk
+     */
+    this.catch(fakeEvent);
   }
 
   /**
@@ -93,106 +98,30 @@ export default class Catcher {
    *
    * @param error - error to catch
    */
-  public catchError(error: Error): void {
+  public catch(error: Error): void {
+    /**
+     * Compose and send a request to Hawk
+     */
     this.formatAndSend(error);
   }
 
   /**
    * Format and send an error
    *
-   * @param error - error to send
-   * @param {object} integrationAddons - addons spoiled by Integration
+   * @param {Error} err - error to send
    */
-  private formatAndSend(error: Error, integrationAddons?: { [key: string]: any }): void {
-    const payloadFormatted = {
-      title: error.message,
-      type: error.name,
-      backtrace: this.composeBacktrace(error)
-    };
+  private formatAndSend(err: Error): void {
+    const eventError = new ErrorEvent(err);
 
-    const eventFormatted = {
+    this.sendErrorFormatted({
       token: this.token,
       catcherType: this.type,
-      payload: payloadFormatted
-    }
-
-    this.sendErrorFormatted(eventFormatted);
-  }
-
-  private composeBacktrace(error: Error): BacktraceFrame[] {
-    const parsedStack = stackTrace.parse(error);
-
-    stackTrace.get().forEach((site: CallSiteObject) => {
-      console.log(site.getThis().getFileName())
+      payload: {
+        title: eventError.getTitle(),
+        type: eventError.getType(),
+        backtrace: eventError.getBacktrace()
+      }
     });
-
-    let backtrace: BacktraceFrame[] = [];
-
-    parsedStack.forEach((frame: StackTraceFrame) => {
-      /**
-       * Check if a frame is an internal Node's call
-       */
-      const isInternal = frame.native || (frame.fileName &&
-        !frame.fileName.startsWith('/') &&
-        !frame.fileName.startsWith('.') &&
-        frame.fileName.indexOf(':\\') !== 1);
-
-      /** Create variable for sourceCode data */
-      let sourceCode: SourceCodeLine[] | null;
-
-      if (isInternal) {
-        /**
-         * Do not find file for internal call frame
-         */
-        sourceCode = null;
-      } else {
-        /**
-         * Read source file as array of lines
-         */
-        const lines = fs.readFileSync(frame.fileName, 'utf-8')
-          .split('\n');
-
-        /** Count line number in an array */
-        const actualLineNumber = frame.lineNumber - 1; // starts from 0;
-
-        /** Define line number to start copy code */
-        const lineFrom = Math.max(0, actualLineNumber - LINES_BUFFER);
-
-        /** Define line number to end copy code */
-        const lineTo = Math.min(lines.length - 1, actualLineNumber + LINES_BUFFER + 1);
-
-        /** Get buffer lines from files */
-        const linesToCollect = lines.slice(lineFrom, lineTo);
-
-        /** Compose code chunk of file */
-        sourceCode = linesToCollect.map((content: string, index: number) => {
-          return {
-            line: lineFrom + index + 1,
-            content,
-          };
-        });
-      }
-
-      /** Create a backtrace frame data */
-      let backtraceFrame: BacktraceFrame = {
-        file: frame.fileName,
-        line: frame.lineNumber,
-        column: frame.columnNumber,
-        function: frame.functionName
-      }
-
-      /** Add source code data if it is not empty */
-      if (!!sourceCode) {
-        backtraceFrame.sourceCode = sourceCode;
-      }
-
-      /** Add frame to backtrace array */
-      backtrace.push(backtraceFrame);
-    })
-
-    console.log(backtrace);
-
-    return backtrace;
   }
 
   /**
@@ -201,10 +130,12 @@ export default class Catcher {
    * @param {HawkEvent} eventFormatted - formatted event to send
    */
   private async sendErrorFormatted(eventFormatted: HawkEvent): Promise<void> {
-    return axios.post(this.collectorEndpoint, eventFormatted);
+    return axios.post(this.collectorEndpoint, eventFormatted)
+      .then(
+        /** Well done, do nothing */
+      )
+      .catch((err: Error) => {
+        console.error(`[Hawk] Cannot send an event because of ${err.toString()}`)
+      });
   }
 }
-
-export {
-  HawkInitialSettings
-};

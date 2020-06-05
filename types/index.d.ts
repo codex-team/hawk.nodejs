@@ -1,7 +1,7 @@
 /**
  * NodeJS Catcher initial settings
  */
-export interface HawkInitialSettings {
+export interface HawkNodeJSInitialSettings {
   /**
    * User project's Integration Token
    */
@@ -59,7 +59,7 @@ export interface EventData {
   /**
    * Some useful details
    */
-  addons?: object;
+  addons?: HawkNodeJSEventAddons;
 }
 
 /**
@@ -69,27 +69,27 @@ export interface BacktraceFrame {
   /**
    * File
    */
-  file: string;
+  file: string | null;
 
   /**
    * Line number
    */
-  line: number;
+  line: number | null;
 
   /**
    * Column number
    */
-  column: number;
+  column: number | null;
 
   /**
    * Sibling source code lines: some above and some below
    */
-  sourceCode?: SourceCodeLine[];
+  sourceCode?: SourceCodeLine[] | null;
 
   /**
    * Function name extracted from current stack frame
    */
-  function?: string;
+  function?: string | null;
 
   /**
    * Function arguments extracted from current stack frame
@@ -112,3 +112,5 @@ export interface SourceCodeLine {
    */
   content: string;
 }
+
+export interface HawkNodeJSEventAddons {}
