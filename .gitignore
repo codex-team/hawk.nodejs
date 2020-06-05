@@ -56,8 +56,5 @@ typings/
 
 # dotenv environment variables file
 .env
-
 .idea/*
-.idea/watcherTasks.xml
-package-lock.json
 .DS_Store
