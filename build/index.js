@@ -60,25 +60,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
             this.initGlobalHandlers();
         }
         /**
-         * Define own error handlers
-         */
-        initGlobalHandlers() {
-            global.process.on('uncaughtException', (err) => {
-                /**
-                 * Show error data in console
-                 */
-                console.error(err);
-                /**
-                 * Process error catching
-                 */
-                this.catch(err);
-            });
-            global.process.on('unhandledRejection', (err) => {
-                console.error('This error occurred either because an error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch (). Promise rejected due to:', err);
-            });
-        }
-        ;
-        /**
          * Send test event from client
          */
         test() {
@@ -104,6 +85,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
              */
             this.formatAndSend(error);
         }
+        /**
+         * Define own error handlers
+         */
+        initGlobalHandlers() {
+            global.process.on('uncaughtException', (err) => {
+                /**
+                 * Show error data in console
+                 */
+                console.error(err);
+                /**
+                 * Process error catching
+                 */
+                this.catch(err);
+            });
+            global.process.on('unhandledRejection', (err) => {
+                console.error('This error occurred either because an error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch (). Promise rejected due to:', err);
+            });
+        }
+        ;
         /**
          * Format and send an error
          *

@@ -1,16 +1,20 @@
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 (function (factory) {
     if (typeof module === "object" && typeof module.exports === "object") {
         var v = factory(require, exports);
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports"], factory);
+        define(["require", "exports", "fs"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    const fs_1 = __importDefault(require("fs"));
+    // import stackTrace from 'stack-trace';
     const stackTrace = require('stack-trace');
-    const fs = require('fs');
     /**
      * Number of file lines before and after errored line
      * to be read and send to Hawk for better event view
@@ -23,7 +27,7 @@
         /**
          * Initialize a class
          *
-         * @param {Error} err
+         * @param {Error} err — event error to be processed
          */
         constructor(err) {
             this.err = err;
@@ -49,7 +53,7 @@
         /**
          * Format frame data to BacktraceFrame scheme
          *
-         * @param {StackTraceFrame} frame
+         * @param {StackTraceFrame} frame — backtrace step
          * @returns {BacktraceFrame}
          */
         parseStackFrame(frame) {
@@ -73,7 +77,7 @@
         /**
          * Check if frame is an internal node call
          *
-         * @param {StackTraceFrame} frame
+         * @param {StackTraceFrame} frame — backtrace step
          * @returns {boolean}
          */
         isInternal(frame) {
@@ -86,19 +90,19 @@
         /**
          * Read a source file as an array of lines
          *
-         * @param {string} filepath
+         * @param {string} filepath - path to file to be read
          * @returns {string[]}
          */
         getSourceFileAsLines(filepath) {
-            return fs.readFileSync(filepath, 'utf-8')
+            return fs_1.default.readFileSync(filepath, 'utf-8')
                 .split('\n');
         }
         /**
          * Return lines as file chuck with a target line
          *
-         * @param {string} filename
-         * @param {number} targetLine
-         * @param {number} linesBuffer
+         * @param {string} filename - path to file to be read
+         * @param {number} targetLine - number of line with an call
+         * @param {number} linesBuffer — number of lines before and after target line to be read
          */
         getFileChunk(filename, targetLine, linesBuffer = LINES_BUFFER) {
             /**
@@ -108,9 +112,9 @@
             /** Count line number in an array */
             const actualLineNumber = targetLine - 1; // starts from 0;
             /** Define line number to start copy code */
-            const lineFrom = Math.max(0, actualLineNumber - LINES_BUFFER);
+            const lineFrom = Math.max(0, actualLineNumber - linesBuffer);
             /** Define line number to end copy code */
-            const lineTo = Math.min(lines.length - 1, actualLineNumber + LINES_BUFFER + 1);
+            const lineTo = Math.min(lines.length - 1, actualLineNumber + linesBuffer + 1);
             /** Get buffer lines from files */
             const linesToCollect = lines.slice(lineFrom, lineTo);
             /** Compose code chunk of file */

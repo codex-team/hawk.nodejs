@@ -13,7 +13,7 @@ export default class ErrorEvent {
   /**
    * Initialize a class
    *
-   * @param {Error} err
+   * @param {Error} err — error event to be processed
    */
   constructor(err: Error) {
     this.err = err;

@@ -1,7 +1,8 @@
 import { BacktraceFrame, SourceCodeLine } from '../../types';
 import { StackTraceFrame } from '../../types/stack-trace';
+import fs from 'fs';
+// import stackTrace from 'stack-trace';
 const stackTrace = require('stack-trace');
-const fs = require('fs');
 
 /**
  * Number of file lines before and after errored line
@@ -21,7 +22,7 @@ export default class BacktraceHelper {
   /**
    * Initialize a class
    *
-   * @param {Error} err
+   * @param {Error} err — event error to be processed
    */
   constructor(err: Error) {
     this.err = err;
@@ -51,7 +52,7 @@ export default class BacktraceHelper {
   /**
    * Format frame data to BacktraceFrame scheme
    *
-   * @param {StackTraceFrame} frame
+   * @param {StackTraceFrame} frame — backtrace step
    * @returns {BacktraceFrame}
    */
   private parseStackFrame(frame: StackTraceFrame): BacktraceFrame {
@@ -78,7 +79,7 @@ export default class BacktraceHelper {
   /**
    * Check if frame is an internal node call
    *
-   * @param {StackTraceFrame} frame
+   * @param {StackTraceFrame} frame — backtrace step
    * @returns {boolean}
    */
   private isInternal(frame: StackTraceFrame): boolean {
@@ -93,7 +94,7 @@ export default class BacktraceHelper {
   /**
    * Read a source file as an array of lines
    *
-   * @param {string} filepath
+   * @param {string} filepath - path to file to be read
    * @returns {string[]}
    */
   private getSourceFileAsLines(filepath: string): string[] {
@@ -104,11 +105,11 @@ export default class BacktraceHelper {
   /**
    * Return lines as file chuck with a target line
    *
-   * @param {string} filename
-   * @param {number} targetLine
-   * @param {number} linesBuffer
+   * @param {string} filename - path to file to be read
+   * @param {number} targetLine - number of line with an call
+   * @param {number} linesBuffer — number of lines before and after target line to be read
    */
-  private getFileChunk(filename: string, targetLine: number, linesBuffer: number = LINES_BUFFER) {
+  private getFileChunk(filename: string, targetLine: number, linesBuffer: number = LINES_BUFFER): SourceCodeLine[] {
     /**
      * Read source file as array of lines
      */
@@ -118,16 +119,16 @@ export default class BacktraceHelper {
     const actualLineNumber = targetLine - 1; // starts from 0;
 
     /** Define line number to start copy code */
-    const lineFrom = Math.max(0, actualLineNumber - LINES_BUFFER);
+    const lineFrom = Math.max(0, actualLineNumber - linesBuffer);
 
     /** Define line number to end copy code */
-    const lineTo = Math.min(lines.length - 1, actualLineNumber + LINES_BUFFER + 1);
+    const lineTo = Math.min(lines.length - 1, actualLineNumber + linesBuffer + 1);
 
     /** Get buffer lines from files */
     const linesToCollect = lines.slice(lineFrom, lineTo);
 
     /** Compose code chunk of file */
-    return linesToCollect.map((content: string, index: number) => {
+    return linesToCollect.map((content: string, index: number): SourceCodeLine => {
       return {
         line: lineFrom + index + 1,
         content,

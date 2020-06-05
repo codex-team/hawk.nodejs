@@ -55,27 +55,6 @@ export default class HawkCatcher {
   }
 
   /**
-   * Define own error handlers
-   */
-  private initGlobalHandlers(): void {
-    global.process.on('uncaughtException', (err: Error) => {
-      /**
-       * Show error data in console
-       */
-      console.error(err);
-
-      /**
-       * Process error catching
-       */
-      this.catch(err);
-    });
-
-    global.process.on('unhandledRejection', (err: Error | undefined) => {
-      console.error('This error occurred either because an error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch (). Promise rejected due to:', err);
-    });
-  };
-
-  /**
    * Send test event from client
    */
   public test(): void {
@@ -103,6 +82,27 @@ export default class HawkCatcher {
      */
     this.formatAndSend(error);
   }
+
+  /**
+   * Define own error handlers
+   */
+  private initGlobalHandlers(): void {
+    global.process.on('uncaughtException', (err: Error) => {
+      /**
+       * Show error data in console
+       */
+      console.error(err);
+
+      /**
+       * Process error catching
+       */
+      this.catch(err);
+    });
+
+    global.process.on('unhandledRejection', (err: Error | undefined) => {
+      console.error('This error occurred either because an error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch (). Promise rejected due to:', err);
+    });
+  };
 
   /**
    * Format and send an error

@@ -20,7 +20,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         /**
          * Initialize a class
          *
-         * @param {Error} err
+         * @param {Error} err — error event to be processed
          */
         constructor(err) {
             this.err = err;
