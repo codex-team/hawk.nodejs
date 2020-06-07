@@ -4,7 +4,7 @@ Node.js errors Catcher module for [Hawk.so](https://hawk.so)
 
 ## Usage
 
-[Create](https://hawk.so/) an account and get a project token.
+[Create](https://hawk.so/) an account and get an Integration Token.
 
 ### Install
 
