@@ -8,7 +8,7 @@ Node.js errors Catcher module for [Hawk.so](https://hawk.so)
 
 ### Install
 
-Use or Yarn to install Catcher
+Use NPM or Yarn to install Catcher
 
 ```bash
 $ npm install @hawk.so/nodejs --save
