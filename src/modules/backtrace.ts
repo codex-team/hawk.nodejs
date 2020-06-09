@@ -76,6 +76,7 @@ export default class BacktraceHelper {
 
   /**
    * Check if frame is an internal node call
+   * Should we do not try to reach sources and show code pieces
    *
    * @param {StackTraceFrame} frame — backtrace step
    * @returns {boolean}
