@@ -59,6 +59,7 @@ export default class BacktraceHelper {
 
     /**
      * Get source file for non-internal call frames
+     * Check if we need to try to reach sources and show code pieces
      */
     if (!this.isInternal(frame) && frame.fileName && frame.lineNumber) {
       sourceCode = this.getFileChunk(frame.fileName, frame.lineNumber);
@@ -76,7 +77,7 @@ export default class BacktraceHelper {
 
   /**
    * Check if frame is an internal node call
-   * Should we do not try to reach sources and show code pieces
+   * You should not reach sources and show code pieces for internal calls
    *
    * @param {StackTraceFrame} frame — backtrace step
    * @returns {boolean}
