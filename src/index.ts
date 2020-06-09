@@ -1,5 +1,5 @@
-import { HawkEvent, HawkNodeJSInitialSettings } from '../types';
-import ErrorEvent from './modules/event';
+import { HawkEvent, HawkNodeJSInitialSettings } from 'index';
+import EventPayload from './modules/event';
 const axios = require('axios').default;
 
 /**
@@ -87,6 +87,9 @@ export default class HawkCatcher {
    * Define own error handlers
    */
   private initGlobalHandlers(): void {
+    /**
+     * Catch unhandled exceptions
+     */
     global.process.on('uncaughtException', (err: Error) => {
       /**
        * Show error data in console
@@ -99,8 +102,11 @@ export default class HawkCatcher {
       this.catch(err);
     });
 
+    /**
+     * Catch unhandled rejections
+     */
     global.process.on('unhandledRejection', (err: Error | undefined) => {
-      console.error('This error occurred either because an error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch (). Promise rejected due to:', err);
+      console.error('Error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch().\nPromise rejected due to:', err);
     });
   };
 
@@ -110,15 +116,15 @@ export default class HawkCatcher {
    * @param {Error} err - error to send
    */
   private formatAndSend(err: Error): void {
-    const eventError = new ErrorEvent(err);
+    const eventPayload = new EventPayload(err);
 
     this.sendErrorFormatted({
       token: this.token,
       catcherType: this.type,
       payload: {
-        title: eventError.getTitle(),
-        type: eventError.getType(),
-        backtrace: eventError.getBacktrace(),
+        title: eventPayload.getTitle(),
+        type: eventPayload.getType(),
+        backtrace: eventPayload.getBacktrace(),
       },
     });
   }

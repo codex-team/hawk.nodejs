@@ -1,20 +1,32 @@
 /**
  * Small types file for stack-trace package
- * @link https://github.com/felixge/node-stack-trace
+ *
+ * @see https://github.com/felixge/node-stack-trace
  */
-export interface StackTrace {
-  get(): CallSiteObject[];
-
-  /**
-   *
-   * @param {Error} err
-   * @return {StackTraceFrame[]}
-   */
-  parse(err: Error): StackTraceFrame[];
-}
+export as namespace stackTrace;
 
 /**
- * @link https://deno.land/typedoc/interfaces/_deno_.callsite.html
+ * Returns an array of CallSite objects, where element 0 is the current call site.
+ * When passing a function on the current stack as the belowFn parameter,
+ * the returned array will only include CallSite objects below this function.
+ *
+ * @param {Function} [belowFn]
+ * @returns {CallSiteObject[]}
+ */
+export function get(belowFn?: Function): CallSiteObject[];
+
+/**
+ * Parses the err.stack property of an Error object into an array
+ * compatible with those returned by stackTrace.get(). However,
+ * only the following methods are implemented on the returned CallSite objects.
+ *
+ * @param {Error} err
+ * @returns {StackTraceFrame[]}
+ */
+export function parse(err: Error): StackTraceFrame[];
+
+/**
+ * @see https://deno.land/typedoc/interfaces/_deno_.callsite.html
  */
 export interface CallSiteObject {
   /**
@@ -46,7 +58,6 @@ export interface CallSiteObject {
    * that holds the current function
    */
   getMethodName(): string | null;
-
 
   /**
    * If this function was defined in a script returns the name of the script
@@ -101,7 +112,7 @@ export interface StackTraceFrame {
    * If a name property is not available an attempt will be made
    * to try to infer a name from the function's context.
    */
-  functionName: string | null,
+  functionName: string | null;
 
   /**
    * Current line number if this function was defined in a script
@@ -111,19 +122,19 @@ export interface StackTraceFrame {
   /**
    * Current column number if this function was defined in a script
    */
-  columnNumber: number | null,
+  columnNumber: number | null;
 
   /**
    * Type of this as a string. This is the name of the function
    * stored in the constructor field of this, if available,
    * otherwise the object's [[Class]] internal property.
    */
-  typeName: string | null,
+  typeName: string | null;
 
   /**
    * Name of the property of this or one of its prototypes that holds the current function
    */
-  methodName: string | null,
+  methodName: string | null;
 
   /**
    * Is this call in native V8 code?

@@ -89,6 +89,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
          * Define own error handlers
          */
         initGlobalHandlers() {
+            /**
+             * Catch unhandled exceptions
+             */
             global.process.on('uncaughtException', (err) => {
                 /**
                  * Show error data in console
@@ -99,8 +102,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
                  */
                 this.catch(err);
             });
+            /**
+             * Catch unhandled rejections
+             */
             global.process.on('unhandledRejection', (err) => {
-                console.error('This error occurred either because an error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch (). Promise rejected due to:', err);
+                console.error('Error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch().\nPromise rejected due to:', err);
             });
         }
         ;
@@ -110,14 +116,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
          * @param {Error} err - error to send
          */
         formatAndSend(err) {
-            const eventError = new event_1.default(err);
+            const eventPayload = new event_1.default(err);
             this.sendErrorFormatted({
                 token: this.token,
                 catcherType: this.type,
                 payload: {
-                    title: eventError.getTitle(),
-                    type: eventError.getType(),
-                    backtrace: eventError.getBacktrace(),
+                    title: eventPayload.getTitle(),
+                    type: eventPayload.getType(),
+                    backtrace: eventPayload.getBacktrace(),
                 },
             });
         }

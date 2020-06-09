@@ -1,8 +1,6 @@
-import { BacktraceFrame, SourceCodeLine } from '../../types';
-import { StackTraceFrame } from '../../types/stack-trace';
+import { BacktraceFrame, SourceCodeLine } from 'index';
 import fs from 'fs';
-// import stackTrace from 'stack-trace';
-const stackTrace = require('stack-trace');
+import stackTrace, { StackTraceFrame } from 'stack-trace';
 
 /**
  * Number of file lines before and after errored line
@@ -17,15 +15,15 @@ export default class BacktraceHelper {
   /**
    * Error to be processed
    */
-  private err: Error;
+  private error: Error;
 
   /**
    * Initialize a class
    *
-   * @param {Error} err — event error to be processed
+   * @param {Error} error — event error to be processed
    */
-  constructor(err: Error) {
-    this.err = err;
+  constructor(error: Error) {
+    this.error = error;
   }
 
   /**
@@ -34,14 +32,14 @@ export default class BacktraceHelper {
    * @returns {BacktraceFrame[]}
    */
   public getBacktrace(): BacktraceFrame[] {
-    if (!this.err) {
+    if (!this.error) {
       return [];
     }
 
     /**
      * Get stack frames
      */
-    const parsedStack = stackTrace.parse(this.err);
+    const parsedStack = stackTrace.parse(this.error);
 
     /**
      * Format frame data and gather them to array

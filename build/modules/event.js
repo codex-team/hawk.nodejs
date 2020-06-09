@@ -16,14 +16,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     /**
      * Helper for getting error data
      */
-    class ErrorEvent {
+    class EventPayload {
         /**
          * Initialize a class
          *
-         * @param {Error} err — error event to be processed
+         * @param {Error} error — error event to be processed
          */
-        constructor(err) {
-            this.err = err;
+        constructor(error) {
+            this.error = error;
         }
         /**
          * Return event title
@@ -35,8 +35,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
              * Built-it wrapper for error title string
              * `${error.type}: ${error.message}`
              */
-            if (this.err && this.err.toString) {
-                return this.err.toString();
+            if (this.error && this.error.toString) {
+                return this.error.toString();
             }
             return '<unknown>';
         }
@@ -46,8 +46,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
          * @returns {string}
          */
         getType() {
-            if (this.err && this.err.name) {
-                return this.err.name;
+            if (this.error && this.error.name) {
+                return this.error.name;
             }
             return '<UnknownType>';
         }
@@ -57,9 +57,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
          * @returns {BacktraceFrame[]}
          */
         getBacktrace() {
-            const backtrace = new backtrace_1.default(this.err);
+            const backtrace = new backtrace_1.default(this.error);
             return backtrace.getBacktrace();
         }
     }
-    exports.default = ErrorEvent;
+    exports.default = EventPayload;
 });

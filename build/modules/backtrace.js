@@ -7,14 +7,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define(["require", "exports", "fs"], factory);
+        define(["require", "exports", "fs", "stack-trace"], factory);
     }
 })(function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     const fs_1 = __importDefault(require("fs"));
-    // import stackTrace from 'stack-trace';
-    const stackTrace = require('stack-trace');
+    const stack_trace_1 = __importDefault(require("stack-trace"));
     /**
      * Number of file lines before and after errored line
      * to be read and send to Hawk for better event view
@@ -27,10 +26,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
         /**
          * Initialize a class
          *
-         * @param {Error} err — event error to be processed
+         * @param {Error} error — event error to be processed
          */
-        constructor(err) {
-            this.err = err;
+        constructor(error) {
+            this.error = error;
         }
         /**
          * Return backtrace matching types scheme
@@ -38,13 +37,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
          * @returns {BacktraceFrame[]}
          */
         getBacktrace() {
-            if (!this.err) {
+            if (!this.error) {
                 return [];
             }
             /**
              * Get stack frames
              */
-            const parsedStack = stackTrace.parse(this.err);
+            const parsedStack = stack_trace_1.default.parse(this.error);
             /**
              * Format frame data and gather them to array
              */

@@ -1,22 +1,22 @@
-import { BacktraceFrame } from '../../types';
+import { BacktraceFrame } from 'index';
 import BacktraceHelper from './backtrace';
 
 /**
  * Helper for getting error data
  */
-export default class ErrorEvent {
+export default class EventPayload {
   /**
    * Error to be processed
    */
-  public err: Error;
+  public error: Error;
 
   /**
    * Initialize a class
    *
-   * @param {Error} err — error event to be processed
+   * @param {Error} error — error event to be processed
    */
-  constructor(err: Error) {
-    this.err = err;
+  constructor(error: Error) {
+    this.error = error;
   }
 
   /**
@@ -29,8 +29,8 @@ export default class ErrorEvent {
      * Built-it wrapper for error title string
      * `${error.type}: ${error.message}`
      */
-    if (this.err && this.err.toString) {
-      return this.err.toString();
+    if (this.error && this.error.toString) {
+      return this.error.toString();
     }
 
     return '<unknown>';
@@ -42,8 +42,8 @@ export default class ErrorEvent {
    * @returns {string}
    */
   public getType(): string {
-    if (this.err && this.err.name) {
-      return this.err.name;
+    if (this.error && this.error.name) {
+      return this.error.name;
     }
 
     return '<UnknownType>';
@@ -55,7 +55,7 @@ export default class ErrorEvent {
    * @returns {BacktraceFrame[]}
    */
   public getBacktrace(): BacktraceFrame[] {
-    const backtrace = new BacktraceHelper(this.err);
+    const backtrace = new BacktraceHelper(this.error);
 
     return backtrace.getBacktrace();
   }

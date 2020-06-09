@@ -10,6 +10,7 @@ export interface HawkNodeJSInitialSettings {
   /**
    * Hawk Collector endpoint.
    * Can be overwritten for development purposes.
+   *
    * @example http://localhost:3000/
    */
   collectorEndpoint?: string;
