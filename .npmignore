@@ -1,3 +1,7 @@
-example
-package-lock.json
-.idea
+.idea/
+example/
+node_modules/
+src/
+.editorconfig
+tsconfig.json
+yarn.lock

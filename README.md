@@ -1,25 +1,25 @@
-# hawk.nodejs
+# @hawk.so/nodejs
 
 Node.js errors Catcher module for [Hawk.so](https://hawk.so)
 
 ## Usage
 
-[Register](https://hawk.so/join) an account and get a project token.
+[Create](https://hawk.so/) an account and get an Integration Token.
 
-### Install module
+### Install
 
-Use [npm](https://www.npmjs.com) to install Catcher
+Use NPM or Yarn to install Catcher
 
 ```bash
-$ npm install @codexteam/hawk.nodejs --save
+$ npm install @hawk.so/nodejs --save
+
+$ yarn add @hawk.so/nodejs
 ```
 
-#### Download and require node.js file
-
-You can download this repository and require `Hawk.nodejs` file in your project.
+### Require HawkCatcher module
 
 ```nodejs
-require './hawk.nodejs/src/hawk';
+const HawkCatcher = require('../build/index').default;
 ```
 
 ### Init HawkCatcher
@@ -27,75 +27,25 @@ require './hawk.nodejs/src/hawk';
 Create an instance with token to the entry point of your project.
 
 ```nodejs
-var hawkCatcher = require('@codexteam/hawk.nodejs')({
-  accessToken: "69d86244-f792-47ad-8e9a-23fee358e062"
-});
-```
-
-#### Custom Hawk server
-
-If you want to use custom Hawk server then pass a url to this catcher.
-
-```nodejs
-var hawkCatcher = require('@codexteam/hawk.nodejs')({
-  accessToken: "69d86244-f792-47ad-8e9a-23fee358e062",
-  url: "https://myownhawk.com/catcher/nodejs"
+const hawk = new HawkCatcher({
+  token: 'eyJhb...VPsc',
 });
 ```
 
 ### Usage
 
-You can catch global Exceptions
-```nodejs
-hawkCatcher.initGlobalCatcher();
-```
+HawkCatcher adds listeners for `uncaughtException` and `unhandledRejection` itself.
 
-If you provide callback function – it will be called after Exception would be caught by Hawk.
-```nodejs
-hawkCatcher.initGlobalCatcher(function (error, response, body) {
-  console.log('Hawk response: ', body);
-});
-```
+Just write your code.
 
-### Catch exception manually
+### Catch exceptions manually
 
 You can catch exceptions by yourself without enabling handlers.
 
 ```nodejs
 try {
-  throw new Exception("");
+  throw new Error('My lovely error');
 } catch (e) {
-  hawkCatcher.catchException(e, {comment: "Exception in general module"});
+  hawk.catch(e);
 }
 ```
-
-The catchException method has two optional arguments:
-* custom - [optional] dictionary with the following structure
-  * comment - error description
-* callback - [optional] callback function
-
-```nodejs
-try {
-  throw new Exception('');
-} catch (e) {
-  hawkCatcher.catchExceptionPromise(e, {comment: 'Exception in general module'})
-    .then(function (result) {
-      console.log(result);
-    })
-    .catch(function (err) {
-      console.log('Error occured: ', err);
-    });
-}
-```
-
-The catchExceptionPromise method returns Promise and has one optional argument:
-* custom - [optional] dictionary with the following structure
-  * comment - error description
-
-## Links
-
-Repository: https://github.com/codex-team/hawk.nodejs
-
-Report a bug: https://github.com/codex-team/hawk.nodejs/issues
-
-CodeX Team: https://ifmo.su
