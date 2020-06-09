@@ -2,6 +2,7 @@
   "name": "@hawk.so/nodejs",
   "version": "2.0.0",
   "description": "Node.js catcher for Hawk",
+  "license": "MIT",
   "main": "./build/index.js",
   "types": "./types/index.d.ts",
   "scripts": {
