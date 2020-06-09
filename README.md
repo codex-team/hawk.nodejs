@@ -19,7 +19,7 @@ $ yarn add @hawk.so/nodejs
 ### Require HawkCatcher module
 
 ```nodejs
-const HawkCatcher = require('../build/index').default;
+const HawkCatcher = require('@hawk.so/nodejs').default;
 ```
 
 ### Init HawkCatcher
