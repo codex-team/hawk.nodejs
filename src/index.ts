@@ -151,7 +151,9 @@ class Catcher {
 }
 
 /**
+ * Wrapper for Hawk NodeJS Catcher
  *
+ * @type {HawkCatcher}
  */
 export default class HawkCatcher {
   /**
