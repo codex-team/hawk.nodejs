@@ -26,6 +26,12 @@ $ yarn add @hawk.so/nodejs
 const HawkCatcher = require('@hawk.so/nodejs').default;
 ```
 
+Or
+
+```js
+import HawkCatcher from '@hawk.so/nodejs';
+```
+
 ### Init HawkCatcher
 
 Initialize HawkCatcher in the entry file of your project by passing a project token.

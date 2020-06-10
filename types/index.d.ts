@@ -1,7 +1,7 @@
 /**
  * Catcher's wrapper with static methods
  */
-export interface HawkCather {
+export interface HawkCatcher {
   /**
    * Catcher constructor
    *
