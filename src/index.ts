@@ -72,7 +72,7 @@ class Catcher {
     /**
      * Catch it and send to Hawk
      */
-    this.catch(fakeEvent);
+    this.send(fakeEvent);
   }
 
   /**
@@ -81,7 +81,7 @@ class Catcher {
    *
    * @param {Error} error - error to catch
    */
-  public catch(error: Error): void {
+  public send(error: Error): void {
     /**
      * Compose and send a request to Hawk
      */
@@ -104,7 +104,7 @@ class Catcher {
       /**
        * Process error catching
        */
-      this.catch(err);
+      this.send(err);
     });
 
     /**
@@ -164,18 +164,18 @@ export default class HawkCatcher {
   }
 
   /**
-   * Wrapper for HawkCatcher.catch() method
+   * Wrapper for HawkCatcher.send() method
    *
    * This method prepares and sends an Error to Hawk
    * User can fire it manually on try-catch
    *
    * @param {Error} error - error to catch
    */
-  public static catch(error: Error): void {
+  public static send(error: Error): void {
     if (!_instance) {
       throw new Error('HawkCatcher: cannot catch an error because of instance was not set up. Check HawkCatcher.init() method.');
     }
 
-    return _instance.catch(error);
+    return _instance.send(error);
   }
 }

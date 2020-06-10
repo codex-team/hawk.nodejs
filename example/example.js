@@ -9,11 +9,11 @@
  *   token: 'eyJh...Psc',
  * });
  *
- * @example use catch() for manual catching errors and exceptions
+ * @example use send() for manual catching errors and exceptions
  * try {
  *   throw new Error('Cannot do smth');
  * } catch (err) {
- *   HawkCatcher.catch(err);
+ *   HawkCatcher.send(err);
  * }
  */
 const HawkCatcher = require('../build/index').default;
@@ -31,7 +31,7 @@ HawkCatcher.init(HAWK_TOKEN);
 try {
   throw new Error('Hawk NodeJS Catcher test message');
 } catch (e) {
-  HawkCatcher.catch(e);
+  HawkCatcher.send(e);
 }
 
 /**

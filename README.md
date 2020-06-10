@@ -50,12 +50,12 @@ Just write your code.
 
 After [initializing](init-hawkcatcher) you can catch exceptions manually in try-catch constructions in any project's place.
 
-Just [require HawkCatcher](#require-hawkcatcher-module) and call `.catch()` method.
+Just [require HawkCatcher](#require-hawkcatcher-module) and call `.send()` method.
 
 ```js
 try {
   throw new Error('My lovely error');
 } catch (e) {
-  HawkCatcher.catch(e);
+  HawkCatcher.send(e);
 }
 ```

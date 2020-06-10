@@ -1,17 +1,33 @@
 /**
- * NodeJS Catcher initial settings
+ * Catcher's wrapper with static methods
+ */
+export as namespace HawkCatcher;
+
+/**
+ * Catcher constructor
+ *
+ * @param {HawkNodeJSInitialSettings | string} settings
+ */
+export function init(settings: HawkNodeJSInitialSettings | string): void;
+
+/**
+ * Prepare and send an Error to Hawk
+ *
+ * @param {Error} error
+ */
+export function send(error: Error): void;
+
+/**
+ * Initial settings object
  */
 export interface HawkNodeJSInitialSettings {
   /**
-   * User project's Integration Token
+   * Project's token
    */
   token: string;
 
   /**
-   * Hawk Collector endpoint.
-   * Can be overwritten for development purposes.
-   *
-   * @example http://localhost:3000/
+   * Custom collector's URL
    */
   collectorEndpoint?: string;
 }
