@@ -5,7 +5,7 @@ const axios = require('axios').default;
 /**
  * Instance of HawkCatcher for singleton
  */
-let _instance: HawkCatcher;
+let _instance: Catcher;
 
 /**
  * Default Collector's URL
@@ -18,7 +18,7 @@ const DEFAULT_EVENT_COLLECTOR_URL = 'https://k1.hawk.so/';
  *
  * @copyright CodeX
  */
-export default class HawkCatcher {
+class Catcher {
   /**
    * Catcher Type
    */
@@ -60,35 +60,6 @@ export default class HawkCatcher {
   }
 
   /**
-   * Singleton wrapper for HawkCatcher class
-   *
-   * @param {HawkNodeJSInitialSettings | string} [settings] - pass setting for the first call
-   */
-  public static getInstance(settings?: HawkNodeJSInitialSettings | string): HawkCatcher {
-    /**
-     * Check for an instance existing
-     */
-    if (!_instance) {
-      /**
-       * No instance — then settings should be passed
-       */
-      if (!settings) {
-        throw new Error('Hawk Catcher Settings are missing');
-      }
-
-      /**
-       * Create a new instance
-       */
-      _instance = new HawkCatcher(settings);
-    }
-
-    /**
-     * Return instance
-     */
-    return _instance;
-  }
-
-  /**
    * Send test event from client
    */
   public test(): void {
@@ -108,7 +79,7 @@ export default class HawkCatcher {
    * This method prepares and sends an Error to Hawk
    * User can fire it manually on try-catch
    *
-   * @param error - error to catch
+   * @param {Error} error - error to catch
    */
   public catch(error: Error): void {
     /**
@@ -176,5 +147,35 @@ export default class HawkCatcher {
       .catch((err: Error) => {
         console.error(`[Hawk] Cannot send an event because of ${err.toString()}`);
       });
+  }
+}
+
+/**
+ *
+ */
+export default class HawkCatcher {
+  /**
+   * Wrapper for HawkCatcher constructor
+   *
+   * @param {HawkNodeJSInitialSettings|string} settings - If settings is a string, it means an Integration Token
+   */
+  public static init(settings: HawkNodeJSInitialSettings | string): void {
+    _instance = new Catcher(settings);
+  }
+
+  /**
+   * Wrapper for HawkCatcher.catch() method
+   *
+   * This method prepares and sends an Error to Hawk
+   * User can fire it manually on try-catch
+   *
+   * @param {Error} error - error to catch
+   */
+  public static catch(error: Error): void {
+    if (!_instance) {
+      throw new Error('HawkCatcher: cannot catch an error because of instance was not set up. Check HawkCatcher.init() method.');
+    }
+
+    return _instance.catch(error);
   }
 }

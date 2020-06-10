@@ -1,7 +1,7 @@
-const HawkCatcherInstance = require('../build/index').default.getInstance();
+const HawkCatcher = require('../build/index').default;
 
 try {
   undefindedFunction();
 } catch (e) {
-  HawkCatcherInstance.catch(e);
+  HawkCatcher.catch(e);
 }
