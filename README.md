@@ -4,7 +4,9 @@ Node.js errors Catcher module for [Hawk.so](https://hawk.so)
 
 ## Usage
 
-[Create](https://hawk.so/) an account and get an Integration Token.
+1. [Create](https://hawk.so/) an account and get an Integration Token.
+2. Add [@hawk.so/nodejs](https://www.npmjs.com/package/@hawk.so/nodejs) package to your project.
+3. `Require` and initialize module.
 
 ### Install
 
@@ -12,27 +14,33 @@ Use NPM or Yarn to install Catcher
 
 ```bash
 $ npm install @hawk.so/nodejs --save
+```
 
+```bash
 $ yarn add @hawk.so/nodejs
 ```
 
 ### Require HawkCatcher module
 
-```nodejs
+```js
 const HawkCatcher = require('@hawk.so/nodejs').default;
+```
+
+Or
+
+```js
+import HawkCatcher from '@hawk.so/nodejs';
 ```
 
 ### Init HawkCatcher
 
-Create an instance with token to the entry point of your project.
+Initialize HawkCatcher in the entry file of your project by passing a project token.
 
-```nodejs
-const hawk = new HawkCatcher({
-  token: 'eyJhb...VPsc',
-});
+```js
+const HAWK_TOKEN = 'eyJhb...VPsc';
+
+HawkCatcher.init(HAWK_TOKEN);
 ```
-
-### Usage
 
 HawkCatcher adds listeners for `uncaughtException` and `unhandledRejection` itself.
 
@@ -40,12 +48,14 @@ Just write your code.
 
 ### Catch exceptions manually
 
-You can catch exceptions by yourself without enabling handlers.
+After [initializing](init-hawkcatcher) you can catch exceptions manually in try-catch constructions in any project's place.
 
-```nodejs
+Just [require HawkCatcher](#require-hawkcatcher-module) and call `.catch()` method.
+
+```js
 try {
   throw new Error('My lovely error');
 } catch (e) {
-  hawk.catch(e);
+  HawkCatcher.catch(e);
 }
 ```
