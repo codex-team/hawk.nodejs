@@ -3,6 +3,11 @@ import EventPayload from './modules/event';
 const axios = require('axios').default;
 
 /**
+ * Instance of HawkCatcher for singleton
+ */
+let _instance: HawkCatcher;
+
+/**
  * Default Collector's URL
  */
 const DEFAULT_EVENT_COLLECTOR_URL = 'https://k1.hawk.so/';
@@ -52,6 +57,35 @@ export default class HawkCatcher {
      * Set handlers
      */
     this.initGlobalHandlers();
+  }
+
+  /**
+   * Singleton wrapper for HawkCatcher class
+   *
+   * @param {HawkNodeJSInitialSettings | string} [settings] - pass setting for the first call
+   */
+  public static getInstance(settings?: HawkNodeJSInitialSettings | string): HawkCatcher {
+    /**
+     * Check for an instance existing
+     */
+    if (!_instance) {
+      /**
+       * No instance — then settings should be passed
+       */
+      if (!settings) {
+        throw new Error('Hawk Catcher Settings are missing');
+      }
+
+      /**
+       * Create a new instance
+       */
+      _instance = new HawkCatcher(settings);
+    }
+
+    /**
+     * Return instance
+     */
+    return _instance;
   }
 
   /**

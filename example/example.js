@@ -1,6 +1,9 @@
 /**
  * Require Hawk Catcher module
  *
+ * @example require module
+ * const HawkCatcher = require('@hawk.so/nodejs').default;
+ *
  * @example initialize a catcher by creating a new class:
  * const hawk = new HawkCatcher({
  *   token: 'eyJh...Psc',
@@ -13,15 +16,30 @@
  * } catch (err) {
  *   hawk.catch(err);
  * }
+ *
+ * @example SINGLETON: Use Hawk Catcher Instance in entry file
+ * const HawkCatcherInstance = require('@hawk.so/nodejs').default.getInstance({
+ *   token: 'eyJh...Psc',
+ * });
+ *
+ * @example SINGLETON: Require catcher in other modules
+ * const HawkCatcherInstance = require('@hawk.so/nodejs').default.getInstance();
+ *
+ * @example SINGLETON: Use catch method
+ * try {
+ *   undefindedFunction();
+ * } catch (e) {
+ *   HawkCatcherInstance.catch(e);
+ * }
  */
 const HawkCatcher = require('../build/index').default;
 
 /**
  * Initialize Hawk catcher
  */
-const hawk = new HawkCatcher({
+const HawkCatcherInstance = HawkCatcher.getInstance({
   token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9qZWN0SWQiOiI1ZWQ1MDY0OWE3OTYyNDAwMjMzZjI2MzQiLCJpYXQiOjE1OTEwMTkwODF9.mD1JI5y9f4QMU_UxYozGMA7-Vl2iJ0kbMf7tPPjVPsc',
-  collectorEndpoint: 'http://localhost:3000/'
+  // collectorEndpoint: 'http://localhost:3000/'
 });
 
 /**
@@ -30,7 +48,7 @@ const hawk = new HawkCatcher({
 try {
   throw new Error('Hawk NodeJS Catcher test message');
 } catch (e) {
-  hawk.catch(e);
+  HawkCatcherInstance.catch(e);
 }
 
 /**
@@ -39,7 +57,7 @@ try {
 try {
   qwe();
 } catch (e) {
-  hawk.catch(e);
+  HawkCatcherInstance.catch(e);
 }
 
 /**
@@ -48,6 +66,7 @@ try {
 try {
   Promise.reject();
 } catch (e) {
-  hawk.catch(e);
+  HawkCatcherInstance.catch(e);
 }
 
+require('./sub-example');
