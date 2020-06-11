@@ -59,3 +59,5 @@ try {
   HawkCatcher.send(e);
 }
 ```
+
+If HawkCatcher was not initialized then `.send()` method will do nothing.

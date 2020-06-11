@@ -170,11 +170,12 @@ export default class HawkCatcher {
    * @param {Error} error - error to catch
    */
   public static send(error: Error): void {
-    if (!_instance) {
-      throw new Error('HawkCatcher: cannot catch an error because of instance was not set up. Check HawkCatcher.init() method.');
+    /**
+     * If instance is undefined then do nothing
+     */
+    if (_instance) {
+      return _instance.send(error);
     }
-
-    return _instance.send(error);
   }
 }
 
