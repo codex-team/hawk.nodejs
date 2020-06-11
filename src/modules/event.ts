@@ -1,4 +1,4 @@
-import { BacktraceFrame } from 'index';
+import { BacktraceFrame } from '../../types/index';
 import BacktraceHelper from './backtrace';
 
 /**

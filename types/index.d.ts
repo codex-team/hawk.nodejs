@@ -1,17 +1,14 @@
 /**
- * NodeJS Catcher initial settings
+ * Initial settings object
  */
 export interface HawkNodeJSInitialSettings {
   /**
-   * User project's Integration Token
+   * Project's token
    */
   token: string;
 
   /**
-   * Hawk Collector endpoint.
-   * Can be overwritten for development purposes.
-   *
-   * @example http://localhost:3000/
+   * Custom collector's URL
    */
   collectorEndpoint?: string;
 }
