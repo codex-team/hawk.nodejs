@@ -1,4 +1,4 @@
-import { HawkEvent, HawkNodeJSInitialSettings } from 'index';
+import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
 import EventPayload from './modules/event';
 const axios = require('axios').default;
 

@@ -1,23 +1,4 @@
 /**
- * Catcher's wrapper with static methods
- */
-export as namespace HawkCatcher;
-
-/**
- * Catcher constructor
- *
- * @param {HawkNodeJSInitialSettings | string} settings
- */
-export function init(settings: HawkNodeJSInitialSettings | string): void;
-
-/**
- * Prepare and send an Error to Hawk
- *
- * @param {Error} error
- */
-export function send(error: Error): void;
-
-/**
  * Initial settings object
  */
 export interface HawkNodeJSInitialSettings {

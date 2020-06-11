@@ -3,15 +3,15 @@
   "version": "2.0.5",
   "description": "Node.js catcher for Hawk",
   "license": "MIT",
-  "main": "./build/index.js",
-  "types": "./types/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "yarn clean && tsc",
     "build:watch": "yarn clean && tsc-watch",
     "example": "node ./example/example.js",
     "lint": "eslint -c ./.eslintrc.js src/ --ext .ts,.js --fix",
     "lint:test": "eslint -c ./.eslintrc.js src/ --ext .ts,.js",
-    "clean": "rimraf build"
+    "clean": "rimraf dist"
   },
   "dependencies": {
     "axios": "^0.19.2",

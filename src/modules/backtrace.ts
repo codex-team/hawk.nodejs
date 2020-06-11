@@ -1,4 +1,4 @@
-import { BacktraceFrame, SourceCodeLine } from 'index';
+import { BacktraceFrame, SourceCodeLine } from '../../types/index';
 import fs from 'fs';
 import stackTrace, { StackTraceFrame } from 'stack-trace';
 
