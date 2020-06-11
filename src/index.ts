@@ -1,6 +1,6 @@
 import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
 import EventPayload from './modules/event';
-const axios = require('axios').default;
+import axios, { AxiosResponse } from 'axios';
 
 /**
  * Instance of HawkCatcher for singleton
@@ -139,11 +139,9 @@ class Catcher {
    *
    * @param {HawkEvent} eventFormatted - formatted event to send
    */
-  private async sendErrorFormatted(eventFormatted: HawkEvent): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private sendErrorFormatted(eventFormatted: HawkEvent): Promise<void | AxiosResponse<any>> | void {
     return axios.post(this.collectorEndpoint, eventFormatted)
-      .then(
-        /** Well done, do nothing */
-      )
       .catch((err: Error) => {
         console.error(`[Hawk] Cannot send an event because of ${err.toString()}`);
       });
@@ -179,3 +177,7 @@ export default class HawkCatcher {
     return _instance.send(error);
   }
 }
+
+export {
+  HawkNodeJSInitialSettings
+};
