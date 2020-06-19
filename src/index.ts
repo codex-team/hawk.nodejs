@@ -3,6 +3,11 @@ import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
 
 /**
+ * Class for throwing errors inside unhandledRejection processor
+ */
+class UnhandledRejection extends Error {}
+
+/**
  * Instance of HawkCatcher for singleton
  */
 let _instance: Catcher;
@@ -110,8 +115,39 @@ class Catcher {
     /**
      * Catch unhandled rejections
      */
-    global.process.on('unhandledRejection', (err: Error | undefined) => {
-      console.error('Error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch().\nPromise rejected due to:', err);
+    global.process.on('unhandledRejection', (error: Error | string) => {
+      /**
+       * Correct reject processing
+       */
+      if (error instanceof Error) {
+        HawkCatcher.send(error);
+      }
+
+      /**
+       * If only error string was passed on reject
+       */
+      if (typeof error === 'string') {
+        /**
+         * Event is a string with reject info
+         *
+         * Promise.reject('Wrong database key')
+         * will throw: 'Wrong database key'
+         */
+        const reason = `Unhandled rejection: ${error}`;
+
+        HawkCatcher.send(new UnhandledRejection(reason));
+      }
+
+      /**
+       * If we know nothing about an error
+       */
+      if (!error) {
+        const reason = 'Unhandled rejection';
+
+        HawkCatcher.send(new UnhandledRejection(reason));
+      }
+
+      console.error('Error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch().\nPromise rejected due to:', error);
     });
   };
 
