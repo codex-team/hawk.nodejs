@@ -1,4 +1,4 @@
-const HawkCatcher = require('../build/index').default;
+const HawkCatcher = require('../dist/index').default;
 
 try {
   undefindedFunction();

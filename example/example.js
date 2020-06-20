@@ -16,7 +16,7 @@
  *   HawkCatcher.send(err);
  * }
  */
-const HawkCatcher = require('../build/index').default;
+const HawkCatcher = require('../dist/index').default;
 
 /**
  * Initialize Hawk catcher
@@ -40,16 +40,23 @@ try {
 try {
   qwe();
 } catch (e) {
-  HawkCatcher.catch(e);
+  HawkCatcher.send(e);
 }
 
 /**
- * Catching a reject
+ * Catching a rejects
  */
 try {
-  Promise.reject();
+  /**
+   * Manual handled reject
+   */
+  Promise.reject(Error('Sample error'));
 } catch (e) {
-  HawkCatcher.catch(e);
+  HawkCatcher.send(e);
 }
+
+Promise.reject(Error('Unhandled sample error'));
+
+Promise.reject('Unhandled error message passed as string');
 
 require('./sub-example');
