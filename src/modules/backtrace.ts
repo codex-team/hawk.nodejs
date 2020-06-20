@@ -44,7 +44,13 @@ export default class BacktraceHelper {
     /**
      * Format frame data and gather them to array
      */
-    return parsedStack.map(this.parseStackFrame.bind(this));
+    const parsedFrames = parsedStack.map(this.parseStackFrame.bind(this));
+
+    /**
+     * Filter backtrace frames
+     * Remove calls with a missing source code (internal calls)
+     */
+    return parsedFrames.filter((frame: BacktraceFrame) => frame.sourceCode);
   }
 
   /**
