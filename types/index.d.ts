@@ -11,6 +11,11 @@ export interface HawkNodeJSInitialSettings {
    * Custom collector's URL
    */
   collectorEndpoint?: string;
+
+  /**
+   * Any other information to send with events
+   */
+  context?: HawkNodeJSEventContext;
 }
 
 /**
@@ -53,6 +58,11 @@ export interface EventData {
    * From the latest call to the earliest
    */
   backtrace?: BacktraceFrame[];
+
+  /**
+   * Any other information to send with event
+   */
+  context?: HawkNodeJSEventContext;
 
   /**
    * Some useful details
@@ -109,6 +119,14 @@ export interface SourceCodeLine {
    * Line content
    */
   content: string;
+}
+
+/**
+ * Any other information to send with event
+ */
+export interface HawkNodeJSEventContext {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 export interface HawkNodeJSEventAddons {}

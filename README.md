@@ -46,6 +46,19 @@ HawkCatcher adds listeners for `uncaughtException` and `unhandledRejection` itse
 
 Just write your code.
 
+#### Global context
+
+You can define global context for all event to be caught.
+
+```js
+HawkCatcher.init({
+  token: HAWK_TOKEN,
+  context: {
+    myOwnDebugInfo: '1234'
+  }
+});
+```
+
 ### Catch exceptions manually
 
 After [initializing](init-hawkcatcher) you can catch exceptions manually in try-catch constructions in any project's place.
@@ -61,3 +74,19 @@ try {
 ```
 
 If HawkCatcher was not initialized then `.send()` method will do nothing.
+
+#### Event context
+
+You can pass any information as context param for a single event.
+
+ ```js
+ try {
+   throw new Error('User not found');
+ } catch (e) {
+   HawkCatcher.send(e, {
+     myOwnDebugInfo: '1234'
+   });
+ }
+ ```
+
+This context object will be merged with global context if it exists.
