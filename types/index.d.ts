@@ -55,6 +55,11 @@ export interface EventData {
   backtrace?: BacktraceFrame[];
 
   /**
+   * Any other information to send with event
+   */
+  context?: HawkNodeJSEventContext;
+
+  /**
    * Some useful details
    */
   addons?: HawkNodeJSEventAddons;
@@ -110,5 +115,7 @@ export interface SourceCodeLine {
    */
   content: string;
 }
+
+export interface HawkNodeJSEventContext {}
 
 export interface HawkNodeJSEventAddons {}

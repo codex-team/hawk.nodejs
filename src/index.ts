@@ -1,4 +1,4 @@
-import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
+import { HawkEvent, HawkNodeJSInitialSettings, HawkNodeJSEventContext } from '../types/index';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
 
@@ -85,12 +85,13 @@ class Catcher {
    * User can fire it manually on try-catch
    *
    * @param {Error} error - error to catch
+   * @param {HawkNodeJSEventContext} context — event context
    */
-  public send(error: Error): void {
+  public send(error: Error, context?: HawkNodeJSEventContext): void {
     /**
      * Compose and send a request to Hawk
      */
-    this.formatAndSend(error);
+    this.formatAndSend(error, context);
   }
 
   /**
@@ -155,8 +156,9 @@ class Catcher {
    * Format and send an error
    *
    * @param {Error} err - error to send
+   * @param {HawkNodeJSEventContext} context — event context
    */
-  private formatAndSend(err: Error): void {
+  private formatAndSend(err: Error, context?: HawkNodeJSEventContext): void {
     const eventPayload = new EventPayload(err);
 
     this.sendErrorFormatted({
@@ -166,6 +168,7 @@ class Catcher {
         title: eventPayload.getTitle(),
         type: eventPayload.getType(),
         backtrace: eventPayload.getBacktrace(),
+        context,
       },
     });
   }
@@ -204,13 +207,14 @@ export default class HawkCatcher {
    * User can fire it manually on try-catch
    *
    * @param {Error} error - error to catch
+   * @param {HawkNodeJSEventContext} context — event context
    */
-  public static send(error: Error): void {
+  public static send(error: Error, context?: HawkNodeJSEventContext): void {
     /**
      * If instance is undefined then do nothing
      */
     if (_instance) {
-      return _instance.send(error);
+      return _instance.send(error, context);
     }
   }
 }
