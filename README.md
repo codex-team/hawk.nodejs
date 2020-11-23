@@ -61,3 +61,17 @@ try {
 ```
 
 If HawkCatcher was not initialized then `.send()` method will do nothing.
+
+#### Event context
+
+You can pass any information as context param.
+
+ ```js
+ try {
+   throw new Error('User not found');
+ } catch (e) {
+   HawkCatcher.send(e, {
+     userId: 34
+   });
+ }
+ ```
