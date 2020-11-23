@@ -11,6 +11,11 @@ export interface HawkNodeJSInitialSettings {
    * Custom collector's URL
    */
   collectorEndpoint?: string;
+
+  /**
+   * Any other information to send with events
+   */
+  context?: HawkNodeJSEventContext;
 }
 
 /**
@@ -116,6 +121,12 @@ export interface SourceCodeLine {
   content: string;
 }
 
-export interface HawkNodeJSEventContext {}
+/**
+ * Any other information to send with event
+ */
+export interface HawkNodeJSEventContext {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
 
 export interface HawkNodeJSEventAddons {}

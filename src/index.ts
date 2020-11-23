@@ -40,6 +40,11 @@ class Catcher {
   private readonly collectorEndpoint: string;
 
   /**
+   * Any other information to send with event
+   */
+  private readonly context?: HawkNodeJSEventContext;
+
+  /**
    * Catcher constructor
    *
    * @param {HawkNodeJSInitialSettings|string} settings - If settings is a string, it means an Integration Token
@@ -53,6 +58,7 @@ class Catcher {
 
     this.token = settings.token;
     this.collectorEndpoint = settings.collectorEndpoint || DEFAULT_EVENT_COLLECTOR_URL;
+    this.context = settings.context || undefined;
 
     if (!this.token) {
       throw new Error('Integration Token is missed. You can get it on https://hawk.so at Project Settings.');
@@ -168,7 +174,7 @@ class Catcher {
         title: eventPayload.getTitle(),
         type: eventPayload.getType(),
         backtrace: eventPayload.getBacktrace(),
-        context,
+        context: this.getContext(context),
       },
     });
   }
@@ -184,6 +190,25 @@ class Catcher {
       .catch((err: Error) => {
         console.error(`[Hawk] Cannot send an event because of ${err.toString()}`);
       });
+  }
+
+  /**
+   * Compose context object
+   *
+   * @param {HawkNodeJSEventContext} context - Any other information to send with event
+   */
+  private getContext(context?: HawkNodeJSEventContext): object {
+    const contextMerged = {};
+
+    if (this.context !== undefined) {
+      Object.assign(contextMerged, this.context);
+    }
+
+    if (context !== undefined) {
+      Object.assign(contextMerged, context);
+    }
+
+    return contextMerged;
   }
 }
 
