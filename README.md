@@ -46,7 +46,7 @@ HawkCatcher adds listeners for `uncaughtException` and `unhandledRejection` itse
 
 Just write your code.
 
-#### Global event content
+#### Global context
 
 You can define global context for all event to be caught.
 
