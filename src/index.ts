@@ -1,4 +1,4 @@
-import { HawkEvent, HawkNodeJSInitialSettings, HawkNodeJSEventContext } from '../types/index';
+import { HawkEvent, HawkNodeJSInitialSettings, HawkNodeJSEventContext, HawkUser } from '../types/index';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
 
@@ -43,6 +43,16 @@ class Catcher {
    * Any other information to send with event
    */
   private readonly context?: HawkNodeJSEventContext;
+
+  /**
+   * Default affected user
+   */
+  private readonly defaultUser: HawkUser = {
+    id: 0,
+    name: '',
+    url: '',
+    image: '',
+  }
 
   /**
    * Catcher constructor
@@ -92,12 +102,13 @@ class Catcher {
    *
    * @param {Error} error - error to catch
    * @param {HawkNodeJSEventContext} context — event context
+   * @param {HawkUser} user - affected user
    */
-  public send(error: Error, context?: HawkNodeJSEventContext): void {
+  public send(error: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
     /**
      * Compose and send a request to Hawk
      */
-    this.formatAndSend(error, context);
+    this.formatAndSend(error, context, user);
   }
 
   /**
@@ -163,8 +174,9 @@ class Catcher {
    *
    * @param {Error} err - error to send
    * @param {HawkNodeJSEventContext} context — event context
+   * @param {HawkUser} user - affected user
    */
-  private formatAndSend(err: Error, context?: HawkNodeJSEventContext): void {
+  private formatAndSend(err: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
     const eventPayload = new EventPayload(err);
 
     this.sendErrorFormatted({
@@ -174,6 +186,7 @@ class Catcher {
         title: eventPayload.getTitle(),
         type: eventPayload.getType(),
         backtrace: eventPayload.getBacktrace(),
+        user: this.getUser(user),
         context: this.getContext(context),
       },
     });
@@ -193,9 +206,27 @@ class Catcher {
   }
 
   /**
+   * Compose affected user object
+   *
+   * @param {HawkUser} user - affected user
+   * @returns {HawkUser}
+   * @private
+   */
+  private getUser(user?: HawkUser): HawkUser {
+    const userObject = this.defaultUser;
+
+    if (user) {
+      Object.assign(userObject, user);
+    }
+
+    return userObject;
+  }
+
+  /**
    * Compose context object
    *
    * @param {HawkNodeJSEventContext} context - Any other information to send with event
+   * @returns {HawkNodeJSEventContext}
    */
   private getContext(context?: HawkNodeJSEventContext): object {
     const contextMerged = {};
@@ -233,13 +264,14 @@ export default class HawkCatcher {
    *
    * @param {Error} error - error to catch
    * @param {HawkNodeJSEventContext} context — event context
+   * @param {HawkUser} user - affected user
    */
-  public static send(error: Error, context?: HawkNodeJSEventContext): void {
+  public static send(error: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
     /**
      * If instance is undefined then do nothing
      */
     if (_instance) {
-      return _instance.send(error, context);
+      return _instance.send(error, context, user);
     }
   }
 }

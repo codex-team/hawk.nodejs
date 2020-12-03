@@ -60,6 +60,11 @@ export interface EventData {
   backtrace?: BacktraceFrame[];
 
   /**
+   * User identifier
+   */
+  user?: HawkUser;
+
+  /**
    * Any other information to send with event
    */
   context?: HawkNodeJSEventContext;
@@ -130,3 +135,28 @@ export interface HawkNodeJSEventContext {
 }
 
 export interface HawkNodeJSEventAddons {}
+
+/**
+ * Represents User object
+ */
+export interface HawkUser {
+  /**
+   * Internal user's identifier inside an app
+   */
+  id: string|number;
+
+  /**
+   * User public name
+   */
+  name?: string;
+
+  /**
+   * URL for user's details page
+   */
+  url?: string;
+
+  /**
+   * User's public picture
+   */
+  image?: string;
+}
