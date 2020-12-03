@@ -90,3 +90,26 @@ You can pass any information as context param for a single event.
  ```
 
 This context object will be merged with global context if it exists.
+
+#### User
+
+You can send user data as a third param.
+
+Available fields:
+| Param | Type | Is required | Description |
+| --- | --- | --- | --- |
+| id | `string\|number` | required | User's identifier |
+| name | `string` | - | User's name |
+| url | `string` | - | User's profile url |
+| image | `string` | - | User's profile pic url |
+
+ ```js
+ try {
+   throw new Error('Cannot create a new post');
+ } catch (e) {
+   HawkCatcher.send(e, {}, {
+     id: 1234,
+     name: 'Taly'
+});
+ }
+ ```
