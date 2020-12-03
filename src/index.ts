@@ -45,16 +45,6 @@ class Catcher {
   private readonly context?: HawkNodeJSEventContext;
 
   /**
-   * Default affected user
-   */
-  private readonly defaultUser: HawkUser = {
-    id: 0,
-    name: '',
-    url: '',
-    image: '',
-  }
-
-  /**
    * Catcher constructor
    *
    * @param {HawkNodeJSInitialSettings|string} settings - If settings is a string, it means an Integration Token
@@ -102,7 +92,7 @@ class Catcher {
    *
    * @param {Error} error - error to catch
    * @param {HawkNodeJSEventContext} context — event context
-   * @param {HawkUser} user - affected user
+   * @param {HawkUser} user - User identifier
    */
   public send(error: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
     /**
@@ -174,7 +164,7 @@ class Catcher {
    *
    * @param {Error} err - error to send
    * @param {HawkNodeJSEventContext} context — event context
-   * @param {HawkUser} user - affected user
+   * @param {HawkUser} user - User identifier
    */
   private formatAndSend(err: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
     const eventPayload = new EventPayload(err);
@@ -206,20 +196,14 @@ class Catcher {
   }
 
   /**
-   * Compose affected user object
+   * Compose User object
    *
-   * @param {HawkUser} user - affected user
-   * @returns {HawkUser}
+   * @param {HawkUser} user - User identifier
+   * @returns {HawkUser|undefined}
    * @private
    */
-  private getUser(user?: HawkUser): HawkUser {
-    const userObject = this.defaultUser;
-
-    if (user) {
-      Object.assign(userObject, user);
-    }
-
-    return userObject;
+  private getUser(user?: HawkUser): HawkUser|undefined {
+    return user;
   }
 
   /**
@@ -264,7 +248,7 @@ export default class HawkCatcher {
    *
    * @param {Error} error - error to catch
    * @param {HawkNodeJSEventContext} context — event context
-   * @param {HawkUser} user - affected user
+   * @param {HawkUser} user - User identifier
    */
   public static send(error: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
     /**
