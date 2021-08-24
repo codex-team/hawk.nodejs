@@ -1,4 +1,4 @@
-import { BacktraceFrame, SourceCodeLine } from '../../types/index';
+import { BacktraceFrame, SourceCodeLine } from 'hawk.types';
 import fs from 'fs';
 import stackTrace, { StackTraceFrame } from 'stack-trace';
 
@@ -61,7 +61,7 @@ export default class BacktraceHelper {
    */
   private parseStackFrame(frame: StackTraceFrame): BacktraceFrame {
     /** Create variable for sourceCode data */
-    let sourceCode: SourceCodeLine[] | null = null;
+    let sourceCode: SourceCodeLine[] = [];
 
     /**
      * Get source file for non-internal call frames

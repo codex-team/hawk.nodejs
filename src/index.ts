@@ -1,6 +1,8 @@
-import { HawkEvent, HawkNodeJSInitialSettings, HawkNodeJSEventContext, HawkUser } from '../types/index';
+import {HawkEvent, HawkNodeJSInitialSettings} from 'index';
+import { EventData, NodeJSAddons, EventContext, AffectedUser } from 'hawk.types';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
+import { VERSION } from './version';
 
 /**
  * Class for throwing errors inside unhandledRejection processor
@@ -42,7 +44,7 @@ class Catcher {
   /**
    * Any other information to send with event
    */
-  private readonly context?: HawkNodeJSEventContext;
+  private readonly context?: EventContext;
 
   /**
    * Catcher constructor
@@ -71,6 +73,13 @@ class Catcher {
   }
 
   /**
+   * Catcher package version
+   */
+  private static getVersion(): string {
+    return VERSION || '';
+  }
+
+  /**
    * Send test event from client
    */
   public test(): void {
@@ -91,10 +100,10 @@ class Catcher {
    * User can fire it manually on try-catch
    *
    * @param {Error} error - error to catch
-   * @param {HawkNodeJSEventContext} context — event context
-   * @param {HawkUser} user - User identifier
+   * @param {EventContext} context — event context
+   * @param {AffectedUser} user - User identifier
    */
-  public send(error: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
+  public send(error: Error, context?: EventContext, user?: AffectedUser): void {
     /**
      * Compose and send a request to Hawk
      */
@@ -163,10 +172,10 @@ class Catcher {
    * Format and send an error
    *
    * @param {Error} err - error to send
-   * @param {HawkNodeJSEventContext} context — event context
-   * @param {HawkUser} user - User identifier
+   * @param {EventContext} context — event context
+   * @param {AffectedUser} user - User identifier
    */
-  private formatAndSend(err: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
+  private formatAndSend(err: Error, context?: EventContext, user?: AffectedUser): void {
     const eventPayload = new EventPayload(err);
 
     this.sendErrorFormatted({
@@ -177,15 +186,16 @@ class Catcher {
         type: eventPayload.getType(),
         backtrace: eventPayload.getBacktrace(),
         user: this.getUser(user),
-        context: this.getContext(context),
+        context: JSON.stringify(this.getContext(context)),
+        catcherVersion: Catcher.getVersion(),
       },
     });
   }
 
   /**
-   * Sends formatted HawkEvent to the Collector
+   * Sends formatted EventData<NodeJSAddons> to the Collector
    *
-   * @param {HawkEvent} eventFormatted - formatted event to send
+   * @param {EventData<NodeJSAddons>>} eventFormatted - formatted event to send
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sendErrorFormatted(eventFormatted: HawkEvent): Promise<void | AxiosResponse<any>> | void {
@@ -198,21 +208,21 @@ class Catcher {
   /**
    * Compose User object
    *
-   * @param {HawkUser} user - User identifier
-   * @returns {HawkUser|undefined}
+   * @param {AffectedUser} user - User identifier
+   * @returns {AffectedUser|undefined}
    * @private
    */
-  private getUser(user?: HawkUser): HawkUser|undefined {
+  private getUser(user?: AffectedUser): AffectedUser|undefined {
     return user;
   }
 
   /**
    * Compose context object
    *
-   * @param {HawkNodeJSEventContext} context - Any other information to send with event
-   * @returns {HawkNodeJSEventContext}
+   * @param {EventContext} context - Any other information to send with event
+   * @returns {EventContext}
    */
-  private getContext(context?: HawkNodeJSEventContext): object {
+  private getContext(context?: EventContext): object {
     const contextMerged = {};
 
     if (this.context !== undefined) {
@@ -247,10 +257,10 @@ export default class HawkCatcher {
    * User can fire it manually on try-catch
    *
    * @param {Error} error - error to catch
-   * @param {HawkNodeJSEventContext} context — event context
-   * @param {HawkUser} user - User identifier
+   * @param {EventContext} context — event context
+   * @param {AffectedUser} user - User identifier
    */
-  public static send(error: Error, context?: HawkNodeJSEventContext, user?: HawkUser): void {
+  public static send(error: Error, context?: EventContext, user?: AffectedUser): void {
     /**
      * If instance is undefined then do nothing
      */
