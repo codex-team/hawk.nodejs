@@ -105,24 +105,24 @@ export interface StackTraceFrame {
   /**
    * Name of the script if this function was defined in a script
    */
-  fileName: string | null;
+  fileName: string;
 
   /**
    * Name of the current function, typically its name property.
    * If a name property is not available an attempt will be made
    * to try to infer a name from the function's context.
    */
-  functionName: string | null;
+  functionName: string;
 
   /**
    * Current line number if this function was defined in a script
    */
-  lineNumber: number | null;
+  lineNumber: number;
 
   /**
    * Current column number if this function was defined in a script
    */
-  columnNumber: number | null;
+  columnNumber: number;
 
   /**
    * Type of this as a string. This is the name of the function

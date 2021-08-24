@@ -1,4 +1,4 @@
-import { BacktraceFrame } from '../../types/index';
+import { BacktraceFrame } from 'hawk.types';
 import BacktraceHelper from './backtrace';
 
 /**
