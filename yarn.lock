@@ -23,6 +23,13 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
+"@hawk.so/types@^0.1.13":
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/@hawk.so/types/-/types-0.1.13.tgz#5a6a52a78c79e2ab99d8d5d339cb937b4442166d"
+  integrity sha512-vu0mWNWTr/WSQQqwmPbSQqrJmiXHiw90m8zkWjYLYYvaUgMahNsooG6FlonkmuYRR15kvMViuSTY55P4YEnNQg==
+  dependencies:
+    "@types/mongodb" "^3.5.34"
+
 "@types/bson@*":
   version "4.0.5"
   resolved "https://registry.yarnpkg.com/@types/bson/-/bson-4.0.5.tgz#9e0e1d1a6f8866483f96868a9b33bc804926b1fc"
@@ -764,12 +771,6 @@ has@^1.0.3:
   integrity sha512-f2dvO0VU6Oej7RkWJGrehjbzMAjFp5/VKPp5tTpWIV4JHHZK1/BxbFRtf/siA2SWTe09caDmVtYYzWEIbBS4zw==
   dependencies:
     function-bind "^1.1.1"
-
-"hawk.types@https://github.com/codex-team/hawk.types":
-  version "0.1.10"
-  resolved "https://github.com/codex-team/hawk.types#dba4926124df6a7296cbe926bdb40b2328f2a9dd"
-  dependencies:
-    "@types/mongodb" "^3.5.34"
 
 hosted-git-info@^2.1.4:
   version "2.8.8"
