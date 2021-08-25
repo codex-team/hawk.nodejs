@@ -1,5 +1,5 @@
-import {HawkEvent, HawkNodeJSInitialSettings} from 'index';
-import { EventData, NodeJSAddons, EventContext, AffectedUser } from 'hawk.types';
+import { HawkEvent, HawkNodeJSInitialSettings } from 'index';
+import { EventData, NodeJSAddons, EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken } from '@hawk.so/types';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
 import { VERSION } from './version';
@@ -34,7 +34,7 @@ class Catcher {
   /**
    * User project's Integration Token
    */
-  private readonly token: string;
+  private readonly token: EncodedIntegrationToken;
 
   /**
    * Collector's url
@@ -59,12 +59,13 @@ class Catcher {
     }
 
     this.token = settings.token;
-    this.collectorEndpoint = settings.collectorEndpoint || DEFAULT_EVENT_COLLECTOR_URL;
     this.context = settings.context || undefined;
 
     if (!this.token) {
       throw new Error('Integration Token is missed. You can get it on https://hawk.so at Project Settings.');
     }
+
+    this.collectorEndpoint = settings.collectorEndpoint || `https://${this.getIntegrationId()}.k1.hawk.so/`;
 
     /**
      * Set handlers
@@ -108,6 +109,23 @@ class Catcher {
      * Compose and send a request to Hawk
      */
     this.formatAndSend(error, context, user);
+  }
+
+  /**
+   * Returns integration id from integration token
+   */
+  private getIntegrationId(): string {
+    const decodedIntegrationTokenAsString = Buffer
+      .from(this.token)
+      .toString('utf-8');
+    const decodedIntegrationToken: DecodedIntegrationToken = JSON.parse(decodedIntegrationTokenAsString);
+    const integrationId = decodedIntegrationToken.integrationId;
+
+    if (!integrationId || integrationId === '') {
+      throw new Error('Invalid integration token. There is no integration ID.');
+    }
+
+    return integrationId;
   }
 
   /**
