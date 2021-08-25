@@ -1,4 +1,4 @@
-import { HawkEvent, HawkNodeJSInitialSettings } from 'index';
+import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
 import { EventData, NodeJSAddons, EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken } from '@hawk.so/types';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
