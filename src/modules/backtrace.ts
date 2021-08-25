@@ -1,4 +1,4 @@
-import { BacktraceFrame, SourceCodeLine } from 'hawk.types';
+import { BacktraceFrame, SourceCodeLine } from '@hawk.so/types';
 import fs from 'fs';
 import stackTrace, { StackTraceFrame } from 'stack-trace';
 
