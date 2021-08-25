@@ -1,6 +1,6 @@
 {
   "name": "@hawk.so/nodejs",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "description": "Node.js catcher for Hawk",
   "license": "MIT",
   "main": "./dist/index.js",
