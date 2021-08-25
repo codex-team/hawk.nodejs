@@ -1,5 +1,5 @@
 import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
-import { EventData, NodeJSAddons, EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken } from '@hawk.so/types';
+import { EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken } from '@hawk.so/types';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
 import { VERSION } from './version';
@@ -13,11 +13,6 @@ class UnhandledRejection extends Error {}
  * Instance of HawkCatcher for singleton
  */
 let _instance: Catcher;
-
-/**
- * Default Collector's URL
- */
-const DEFAULT_EVENT_COLLECTOR_URL = 'https://k1.hawk.so/';
 
 /**
  * Hawk NodeJS Catcher

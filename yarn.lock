@@ -23,10 +23,10 @@
     chalk "^2.0.0"
     js-tokens "^4.0.0"
 
-"@hawk.so/types@^0.1.13":
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/@hawk.so/types/-/types-0.1.13.tgz#5a6a52a78c79e2ab99d8d5d339cb937b4442166d"
-  integrity sha512-vu0mWNWTr/WSQQqwmPbSQqrJmiXHiw90m8zkWjYLYYvaUgMahNsooG6FlonkmuYRR15kvMViuSTY55P4YEnNQg==
+"@hawk.so/types@^0.1.15":
+  version "0.1.15"
+  resolved "https://registry.yarnpkg.com/@hawk.so/types/-/types-0.1.15.tgz#9a561dda47fab91f3093e32cbdfaf83b1eb000c1"
+  integrity sha512-LHZdjmyIbAQ+0Og9Px34BTYF5YM0fto9bSluONmgVVr6Ctu2nPqPibNF1s9PEEisrtRxzuUQX8ea/OAmOJhK3w==
   dependencies:
     "@types/mongodb" "^3.5.34"
 

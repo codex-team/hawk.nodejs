@@ -1,6 +1,6 @@
 {
   "name": "@hawk.so/nodejs",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "Node.js catcher for Hawk",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -15,7 +15,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@hawk.so/types": "^0.1.13",
+    "@hawk.so/types": "^0.1.15",
     "axios": "^0.21.1",
     "stack-trace": "^0.0.10"
   },
