@@ -116,7 +116,7 @@ class Catcher {
    */
   private getIntegrationId(): string {
     const decodedIntegrationTokenAsString = Buffer
-      .from(this.token)
+      .from(this.token, 'base64')
       .toString('utf-8');
     const decodedIntegrationToken: DecodedIntegrationToken = JSON.parse(decodedIntegrationTokenAsString);
     const integrationId = decodedIntegrationToken.integrationId;
