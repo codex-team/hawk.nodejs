@@ -15,6 +15,11 @@ export interface HawkNodeJSInitialSettings {
   collectorEndpoint?: string;
 
   /**
+   * Release identifier
+   */
+  release?: string;
+
+  /**
    * Any other information to send with events
    */
   context?: HawkNodeJSEventContext;
@@ -23,6 +28,12 @@ export interface HawkNodeJSInitialSettings {
    * This Method allows you to filter any data you don't want sending to Hawk
    */
   beforeSend?(event: EventData<NodeJSAddons>): EventData<NodeJSAddons>;
+
+  /**
+   * Do not initialize global errors handling
+   * This options still allow you send events manually
+   */
+  disableGlobalErrorsHandling?: boolean;
 }
 
 /**

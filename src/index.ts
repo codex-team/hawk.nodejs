@@ -37,6 +37,11 @@ class Catcher {
   private readonly collectorEndpoint: string;
 
   /**
+   * Release identifier
+   */
+  private readonly release?: string;
+
+  /**
    * Any other information to send with event
    */
   private readonly context?: EventContext;
@@ -60,6 +65,7 @@ class Catcher {
 
     this.token = settings.token;
     this.context = settings.context || undefined;
+    this.release = settings.release || undefined;
     this.beforeSend = settings.beforeSend;
 
     if (!this.token) {
@@ -69,9 +75,11 @@ class Catcher {
     this.collectorEndpoint = settings.collectorEndpoint || `https://${this.getIntegrationId()}.k1.hawk.so/`;
 
     /**
-     * Set handlers
+     * Set global handlers
      */
-    this.initGlobalHandlers();
+    if (!settings.disableGlobalErrorsHandling) {
+      this.initGlobalHandlers();
+    }
   }
 
   /**
@@ -202,6 +210,7 @@ class Catcher {
       backtrace: eventPayload.getBacktrace(),
       user: this.getUser(user),
       context: JSON.stringify(this.getContext(context)),
+      release: this.release,
       catcherVersion: Catcher.getVersion(),
     };
 
@@ -226,8 +235,6 @@ class Catcher {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sendErrorFormatted(eventFormatted: HawkEvent): Promise<void | AxiosResponse<any>> | void {
-    console.log('eventFormatted', eventFormatted);
-
     return axios.post(this.collectorEndpoint, eventFormatted)
       .catch((err: Error) => {
         console.error(`[Hawk] Cannot send an event because of ${err.toString()}`);
