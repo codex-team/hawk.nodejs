@@ -16,12 +16,12 @@
  *   HawkCatcher.send(err);
  * }
  */
-const HawkCatcher = require('../dist/index').default;
+const HawkCatcher = require('../dist/src/index').default;
 
 /**
  * Initialize Hawk catcher
  */
-const HAWK_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9qZWN0SWQiOiI1ZWQ1MDY0OWE3OTYyNDAwMjMzZjI2MzQiLCJpYXQiOjE1OTEwMTkwODF9.mD1JI5y9f4QMU_UxYozGMA7-Vl2iJ0kbMf7tPPjVPsc';
+const HAWK_TOKEN = 'eyJpbnRlZ3JhdGlvbklkIjoiNWIwZjBmYmUtNTM2OS00ODM0LWEwMjctNTZkMTM1YmU1OGU3Iiwic2VjcmV0IjoiYWY4ZjY1OTQtNzExOS00MWVmLWI4ZTAtMTcyMDYwZjBmODc2In0=';
 
 HawkCatcher.init(HAWK_TOKEN);
 
