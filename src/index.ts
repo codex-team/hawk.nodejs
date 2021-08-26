@@ -1,5 +1,5 @@
 import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
-import { EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken } from '@hawk.so/types';
+import { EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken, EventData, NodeJSAddons } from '@hawk.so/types';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
 import { VERSION } from './version';
@@ -42,6 +42,11 @@ class Catcher {
   private readonly context?: EventContext;
 
   /**
+   * This Method allows developer to filter any data you don't want sending to Hawk
+   */
+  private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons>;
+
+  /**
    * Catcher constructor
    *
    * @param {HawkNodeJSInitialSettings|string} settings - If settings is a string, it means an Integration Token
@@ -55,6 +60,7 @@ class Catcher {
 
     this.token = settings.token;
     this.context = settings.context || undefined;
+    this.beforeSend = settings.beforeSend;
 
     if (!this.token) {
       throw new Error('Integration Token is missed. You can get it on https://hawk.so at Project Settings.');
@@ -190,18 +196,26 @@ class Catcher {
    */
   private formatAndSend(err: Error, context?: EventContext, user?: AffectedUser): void {
     const eventPayload = new EventPayload(err);
+    let payload: EventData<NodeJSAddons> = {
+      title: eventPayload.getTitle(),
+      type: eventPayload.getType(),
+      backtrace: eventPayload.getBacktrace(),
+      user: this.getUser(user),
+      context: JSON.stringify(this.getContext(context)),
+      catcherVersion: Catcher.getVersion(),
+    };
+
+    /**
+     * Filter sensitive data
+     */
+    if (typeof this.beforeSend === 'function') {
+      payload = this.beforeSend(payload);
+    }
 
     this.sendErrorFormatted({
       token: this.token,
       catcherType: this.type,
-      payload: {
-        title: eventPayload.getTitle(),
-        type: eventPayload.getType(),
-        backtrace: eventPayload.getBacktrace(),
-        user: this.getUser(user),
-        context: JSON.stringify(this.getContext(context)),
-        catcherVersion: Catcher.getVersion(),
-      },
+      payload,
     });
   }
 
@@ -212,6 +226,8 @@ class Catcher {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sendErrorFormatted(eventFormatted: HawkEvent): Promise<void | AxiosResponse<any>> | void {
+    console.log('eventFormatted', eventFormatted);
+
     return axios.post(this.collectorEndpoint, eventFormatted)
       .catch((err: Error) => {
         console.error(`[Hawk] Cannot send an event because of ${err.toString()}`);

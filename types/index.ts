@@ -18,6 +18,11 @@ export interface HawkNodeJSInitialSettings {
    * Any other information to send with events
    */
   context?: HawkNodeJSEventContext;
+
+  /**
+   * This Method allows you to filter any data you don't want sending to Hawk
+   */
+  beforeSend?(event: EventData<NodeJSAddons>): EventData<NodeJSAddons>;
 }
 
 /**

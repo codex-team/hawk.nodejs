@@ -37,7 +37,7 @@ import HawkCatcher from '@hawk.so/nodejs';
 Initialize HawkCatcher in the entry file of your project by passing a project token.
 
 ```js
-const HAWK_TOKEN = 'eyJhb...VPsc';
+const HAWK_TOKEN = 'eyJhb...VPsc=';
 
 HawkCatcher.init(HAWK_TOKEN);
 ```
@@ -113,3 +113,20 @@ Available fields:
 });
  }
  ```
+
+### Sensitive data filtering
+
+You can filter any data that you don't want to send to Hawk. Use the `beforeSend()` hook for that reason.
+
+```js
+HawkCatcher.init({
+  token: 'INTEGRATION TOKEN',
+  beforeSend(event){
+    if (event.user && event.user.name){
+      delete event.user.name;
+    }
+
+    return event;
+  }
+})
+```
