@@ -1,5 +1,13 @@
 import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
-import { EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken, EventData, NodeJSAddons } from '@hawk.so/types';
+import {
+  EventContext,
+  AffectedUser,
+  EncodedIntegrationToken,
+  DecodedIntegrationToken,
+  EventData,
+  NodeJSAddons,
+  Json
+} from '@hawk.so/types';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
 import { VERSION } from './version';
@@ -209,7 +217,7 @@ class Catcher {
       type: eventPayload.getType(),
       backtrace: eventPayload.getBacktrace(),
       user: this.getUser(user),
-      context: JSON.stringify(this.getContext(context)),
+      context: this.getContext(context),
       release: this.release,
       catcherVersion: Catcher.getVersion(),
     };
@@ -234,7 +242,7 @@ class Catcher {
    * @param {EventData<NodeJSAddons>>} eventFormatted - formatted event to send
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private sendErrorFormatted(eventFormatted: HawkEvent): Promise<void | AxiosResponse<any>> | void {
+  private sendErrorFormatted(eventFormatted: HawkEvent): Promise<void | AxiosResponse<any>> {
     return axios.post(this.collectorEndpoint, eventFormatted)
       .catch((err: Error) => {
         console.error(`[Hawk] Cannot send an event because of ${err.toString()}`);
@@ -258,7 +266,7 @@ class Catcher {
    * @param {EventContext} context - Any other information to send with event
    * @returns {EventContext}
    */
-  private getContext(context?: EventContext): object {
+  private getContext(context?: EventContext): Json {
     const contextMerged = {};
 
     if (this.context !== undefined) {
