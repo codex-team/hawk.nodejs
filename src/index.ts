@@ -1,5 +1,5 @@
 import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
-import { EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken } from '@hawk.so/types';
+import { EventContext, AffectedUser, EncodedIntegrationToken, DecodedIntegrationToken, EventData, NodeJSAddons } from '@hawk.so/types';
 import EventPayload from './modules/event';
 import axios, { AxiosResponse } from 'axios';
 import { VERSION } from './version';
@@ -37,9 +37,19 @@ class Catcher {
   private readonly collectorEndpoint: string;
 
   /**
+   * Release identifier
+   */
+  private readonly release?: string;
+
+  /**
    * Any other information to send with event
    */
   private readonly context?: EventContext;
+
+  /**
+   * This Method allows developer to filter any data you don't want sending to Hawk
+   */
+  private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons>;
 
   /**
    * Catcher constructor
@@ -55,6 +65,8 @@ class Catcher {
 
     this.token = settings.token;
     this.context = settings.context || undefined;
+    this.release = settings.release || undefined;
+    this.beforeSend = settings.beforeSend;
 
     if (!this.token) {
       throw new Error('Integration Token is missed. You can get it on https://hawk.so at Project Settings.');
@@ -63,9 +75,11 @@ class Catcher {
     this.collectorEndpoint = settings.collectorEndpoint || `https://${this.getIntegrationId()}.k1.hawk.so/`;
 
     /**
-     * Set handlers
+     * Set global handlers
      */
-    this.initGlobalHandlers();
+    if (!settings.disableGlobalErrorsHandling) {
+      this.initGlobalHandlers();
+    }
   }
 
   /**
@@ -190,18 +204,27 @@ class Catcher {
    */
   private formatAndSend(err: Error, context?: EventContext, user?: AffectedUser): void {
     const eventPayload = new EventPayload(err);
+    let payload: EventData<NodeJSAddons> = {
+      title: eventPayload.getTitle(),
+      type: eventPayload.getType(),
+      backtrace: eventPayload.getBacktrace(),
+      user: this.getUser(user),
+      context: JSON.stringify(this.getContext(context)),
+      release: this.release,
+      catcherVersion: Catcher.getVersion(),
+    };
+
+    /**
+     * Filter sensitive data
+     */
+    if (typeof this.beforeSend === 'function') {
+      payload = this.beforeSend(payload);
+    }
 
     this.sendErrorFormatted({
       token: this.token,
       catcherType: this.type,
-      payload: {
-        title: eventPayload.getTitle(),
-        type: eventPayload.getType(),
-        backtrace: eventPayload.getBacktrace(),
-        user: this.getUser(user),
-        context: JSON.stringify(this.getContext(context)),
-        catcherVersion: Catcher.getVersion(),
-      },
+      payload,
     });
   }
 

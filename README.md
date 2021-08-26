@@ -2,6 +2,19 @@
 
 Node.js errors Catcher module for [Hawk.so](https://hawk.so)
 
+## Initial params
+
+Initialization params:
+
+| name | type | required | description |
+| -- | -- | -- | -- |
+| `token` | string | **required** | Your project's Integration Token |
+| `release` | string | optional | Unique identifier of the release. |
+| `context` | object | optional | Any data you want to pass with every message. |
+| `disableGlobalErrorsHandling` | boolean | optional | Do not initialize global errors handling |
+| `beforeSend` | function(event) => event | optional | This Method allows you to filter any data you don't want sending to Hawk |
+
+
 ## Usage
 
 1. [Create](https://hawk.so/) an account and get an Integration Token.
@@ -10,7 +23,7 @@ Node.js errors Catcher module for [Hawk.so](https://hawk.so)
 
 ### Install
 
-Use NPM or Yarn to install Catcher
+Use NPM or Yarn to install Catcher `@hawk.so/nodejs`.
 
 ```bash
 $ npm install @hawk.so/nodejs --save
@@ -37,16 +50,27 @@ import HawkCatcher from '@hawk.so/nodejs';
 Initialize HawkCatcher in the entry file of your project by passing a project token.
 
 ```js
-const HAWK_TOKEN = 'eyJhb...VPsc';
+const HAWK_TOKEN = 'eyJhb...VPsc=';
 
 HawkCatcher.init(HAWK_TOKEN);
 ```
 
 HawkCatcher adds listeners for `uncaughtException` and `unhandledRejection` itself.
 
-Just write your code.
+#### Disable global errors handling
 
-#### Global context
+If you don't want to initialize handlers for global exceptions then use `disableGlobalErrorsHandling` param.
+
+```js
+HawkCatcher.init({
+  token: HAWK_TOKEN,
+  disableGlobalErrorsHandling: true,
+});
+```
+
+Then you can catch events manually.
+
+### Global context
 
 You can define global context for all event to be caught.
 
@@ -57,6 +81,17 @@ HawkCatcher.init({
     myOwnDebugInfo: '1234'
   }
 });
+```
+
+### Releases
+
+To mark events to specific release pass the `release` identifier string to intial config.
+
+```js
+HawkCatcher.init({
+  token: 'INTEGRATION TOKEN',
+  release: process.env.releaseId
+})
 ```
 
 ### Catch exceptions manually
@@ -74,6 +109,7 @@ try {
 ```
 
 If HawkCatcher was not initialized then `.send()` method will do nothing.
+
 
 #### Event context
 
@@ -113,3 +149,20 @@ Available fields:
 });
  }
  ```
+
+### Sensitive data filtering
+
+You can filter any data that you don't want to send to Hawk. Use the `beforeSend()` hook for that reason.
+
+```js
+HawkCatcher.init({
+  token: 'INTEGRATION TOKEN',
+  beforeSend(event){
+    if (event.user && event.user.name){
+      delete event.user.name;
+    }
+
+    return event;
+  }
+})
+```
