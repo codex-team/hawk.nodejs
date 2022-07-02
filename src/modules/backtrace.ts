@@ -104,8 +104,12 @@ export default class BacktraceHelper {
    * @returns {string[]}
    */
   private getSourceFileAsLines(filepath: string): string[] {
-    return fs.readFileSync(filepath, 'utf-8')
-      .split('\n');
+    try {
+      return fs.readFileSync(filepath, 'utf-8')
+        .split('\n');
+    } catch (e) {
+      return [];
+    }
   }
 
   /**
