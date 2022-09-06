@@ -4,6 +4,7 @@ const path = require('path');
 /**
  * This script creates per-distribution package.json files for the MJS and CJS bundles
  * These package.json files defines the default package type for the .dist/* sub-directories.
+ * The main package.json does not have a "type" property. Rather, we push that down to the package.json files under the ./dist/* sub-directories.
  */
 
 /**
