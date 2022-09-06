@@ -35,11 +35,13 @@ $ yarn add @hawk.so/nodejs
 
 ### Require HawkCatcher module
 
+#### For CommonJS projects
+
 ```js
 const HawkCatcher = require('@hawk.so/nodejs').default;
 ```
 
-Or
+#### For ESM projects
 
 ```js
 import HawkCatcher from '@hawk.so/nodejs';
