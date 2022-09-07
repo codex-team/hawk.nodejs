@@ -5,7 +5,6 @@ src/
 .editorconfig
 .eslintrc.js
 tsconfig.json
-tsconfig-base.json
 tsconfig-cjs.json
 yarn.lock
 *.log
