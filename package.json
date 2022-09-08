@@ -3,8 +3,8 @@
   "version": "3.1.3",
   "description": "Node.js catcher for Hawk",
   "license": "MIT",
-  "main": "./dist/src/index.js",
-  "module": "dist/mjs/index.js",
+  "main": "./dist/cjs/src/index.js",
+  "module": "dist/mjs/src/index.js",
   "exports": {
     ".": {
         "import": "./dist/mjs/src/index.js",
