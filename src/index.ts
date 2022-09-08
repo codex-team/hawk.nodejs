@@ -1,4 +1,5 @@
-import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index';
+import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index.js';
+
 import {
   EventContext,
   AffectedUser,
@@ -8,9 +9,9 @@ import {
   NodeJSAddons,
   Json
 } from '@hawk.so/types';
-import EventPayload from './modules/event';
+import EventPayload from './modules/event.js';
 import axios, { AxiosResponse } from 'axios';
-import { VERSION } from './version';
+import { VERSION } from './version.js';
 
 /**
  * Class for throwing errors inside unhandledRejection processor

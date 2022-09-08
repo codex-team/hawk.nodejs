@@ -1,5 +1,5 @@
 import { BacktraceFrame } from '@hawk.so/types';
-import BacktraceHelper from './backtrace';
+import BacktraceHelper from './backtrace.js';
 
 /**
  * Helper for getting error data

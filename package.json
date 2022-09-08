@@ -1,13 +1,19 @@
 {
   "name": "@hawk.so/nodejs",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "description": "Node.js catcher for Hawk",
   "license": "MIT",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "./dist/cjs/src/index.js",
+  "module": "dist/mjs/src/index.js",
+  "exports": {
+    ".": {
+        "import": "./dist/mjs/src/index.js",
+        "require": "./dist/cjs/src/index.js"
+    }
+  },
   "scripts": {
     "prebuild": "node -p \"'export const VERSION = ' + JSON.stringify(require('./package.json').version) + ';'\" > src/version.ts",
-    "build": "yarn clean && tsc",
+    "build": "yarn clean && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && node ./create-packages.js",
     "build:watch": "yarn clean && tsc-watch",
     "example": "node ./example/example.js",
     "lint": "eslint -c ./.eslintrc.js src/ --ext .ts,.js --fix",
