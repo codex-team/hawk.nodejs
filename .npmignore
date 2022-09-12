@@ -1,7 +1,7 @@
 .idea/
 example/
 node_modules/
-src/
+./src
 .editorconfig
 .eslintrc.js
 tsconfig.json
