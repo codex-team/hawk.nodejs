@@ -81,13 +81,19 @@ class Catcher {
       throw new Error('Integration Token is missed. You can get it on https://hawk.so at Project Settings.');
     }
 
-    this.collectorEndpoint = settings.collectorEndpoint || `https://${this.getIntegrationId()}.k1.hawk.so/`;
+    try {
+      const integrationId = this.getIntegrationId();
 
-    /**
-     * Set global handlers
-     */
-    if (!settings.disableGlobalErrorsHandling) {
-      this.initGlobalHandlers();
+      this.collectorEndpoint = settings.collectorEndpoint || `https://${integrationId}.k1.hawk.so/`;
+
+      /**
+       * Set global handlers
+       */
+      if (!settings.disableGlobalErrorsHandling) {
+        this.initGlobalHandlers();
+      }
+    } catch (error) {
+      throw new Error('Invalid integration token');
     }
   }
 
