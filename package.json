@@ -2,7 +2,7 @@
   "name": "@hawk.so/nodejs",
   "version": "3.1.5",
   "description": "Node.js catcher for Hawk",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "main": "./dist/cjs/src/index.js",
   "module": "dist/mjs/src/index.js",
   "exports": {
