@@ -84,8 +84,8 @@ export default class EventPayload {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const value = (this.error as any)[prop];
 
-        // Only include serializable values
-        if (value !== undefined && value !== null) {
+        // Only include serializable values (checks for both undefined and null)
+        if (value != null) {
           // Check if value is JSON-serializable
           if (this.isSerializable(value)) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,13 +106,9 @@ export default class EventPayload {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private isSerializable(value: any): boolean {
-    // Primitives are always serializable
-    if (value === null || value === undefined) {
-      return false;
-    }
-
     const type = typeof value;
 
+    // Primitives are serializable
     if (type === 'boolean' || type === 'number' || type === 'string') {
       return true;
     }
