@@ -86,8 +86,11 @@ export default class EventPayload {
 
         // Only include serializable values
         if (value !== undefined && value !== null) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (addons as any)[prop] = value;
+          // Check if value is JSON-serializable
+          if (this.isSerializable(value)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (addons as any)[prop] = value;
+          }
         }
       } catch {
         // Skip properties that can't be accessed
@@ -95,5 +98,41 @@ export default class EventPayload {
     }
 
     return addons;
+  }
+
+  /**
+   * Check if a value is JSON-serializable
+   * @param value - value to check
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private isSerializable(value: any): boolean {
+    // Primitives are always serializable
+    if (value === null || value === undefined) {
+      return false;
+    }
+
+    const type = typeof value;
+
+    if (type === 'boolean' || type === 'number' || type === 'string') {
+      return true;
+    }
+
+    // Functions and symbols are not serializable
+    if (type === 'function' || type === 'symbol') {
+      return false;
+    }
+
+    // For objects and arrays, try to serialize and catch any errors
+    if (type === 'object') {
+      try {
+        JSON.stringify(value);
+        return true;
+      } catch {
+        // Circular references or other serialization issues
+        return false;
+      }
+    }
+
+    return false;
   }
 }
