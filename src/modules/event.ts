@@ -1,4 +1,4 @@
-import type { BacktraceFrame } from '@hawk.so/types';
+import type { BacktraceFrame, NodeJSAddons } from '@hawk.so/types';
 import BacktraceHelper from './backtrace.js';
 
 /**
@@ -55,5 +55,80 @@ export default class EventPayload {
     const backtrace = new BacktraceHelper(this.error);
 
     return backtrace.getBacktrace();
+  }
+
+  /**
+   * Extract additional error information for NodeJS addons
+   * Includes error codes, system error fields, and any custom properties
+   */
+  public getAddons(): NodeJSAddons {
+    if (this.error === undefined) {
+      return {};
+    }
+
+    const addons: NodeJSAddons = {};
+
+    // Get all own properties of the error (including non-enumerable ones)
+    const errorProps = Object.getOwnPropertyNames(this.error);
+
+    // Standard properties to skip (already captured elsewhere)
+    const skipProps = new Set(['name', 'message', 'stack']);
+
+    // Extract all additional properties from the error
+    for (const prop of errorProps) {
+      if (skipProps.has(prop)) {
+        continue;
+      }
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const value = (this.error as any)[prop];
+
+        // Only include serializable values (checks for both undefined and null)
+        if (value != null) {
+          // Check if value is JSON-serializable
+          if (this.isSerializable(value)) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (addons as any)[prop] = value;
+          }
+        }
+      } catch {
+        // Skip properties that can't be accessed
+      }
+    }
+
+    return addons;
+  }
+
+  /**
+   * Check if a value is JSON-serializable
+   * @param value - value to check
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private isSerializable(value: any): boolean {
+    const type = typeof value;
+
+    // Primitives are serializable
+    if (type === 'boolean' || type === 'number' || type === 'string') {
+      return true;
+    }
+
+    // Functions and symbols are not serializable
+    if (type === 'function' || type === 'symbol') {
+      return false;
+    }
+
+    // For objects and arrays, try to serialize and catch any errors
+    if (type === 'object') {
+      try {
+        JSON.stringify(value);
+        return true;
+      } catch {
+        // Circular references or other serialization issues
+        return false;
+      }
+    }
+
+    return false;
   }
 }
