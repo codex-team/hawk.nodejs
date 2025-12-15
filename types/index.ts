@@ -1,4 +1,4 @@
-import { EventData, NodeJSAddons } from '@hawk.so/types';
+import type { EventData, NodeJSAddons } from '@hawk.so/types';
 
 /**
  * Initial settings object
