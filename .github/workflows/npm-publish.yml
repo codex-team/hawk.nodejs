@@ -15,7 +15,7 @@ jobs:
           node-version-file: '.nvmrc'
           registry-url: https://registry.npmjs.org/
       - run: yarn
-      - run: yarn lint:test
+      - run: yarn prebuild
       - run: yarn build
       - run: yarn publish --access=public
         env:

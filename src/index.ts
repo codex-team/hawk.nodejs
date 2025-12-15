@@ -104,6 +104,7 @@ class Catcher {
     if (VERSION !== undefined && VERSION !== null) {
       return String(VERSION);
     }
+
     return '';
   }
 
