@@ -1,6 +1,5 @@
 /**
  * Small types file for stack-trace package
- *
  * @see https://github.com/felixge/node-stack-trace
  */
 export as namespace stackTrace;
@@ -9,19 +8,16 @@ export as namespace stackTrace;
  * Returns an array of CallSite objects, where element 0 is the current call site.
  * When passing a function on the current stack as the belowFn parameter,
  * the returned array will only include CallSite objects below this function.
- *
- * @param {Function} [belowFn]
- * @returns {CallSiteObject[]}
+ * @param [belowFn] - Function to get call sites below
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 export function get(belowFn?: Function): CallSiteObject[];
 
 /**
  * Parses the err.stack property of an Error object into an array
  * compatible with those returned by stackTrace.get(). However,
  * only the following methods are implemented on the returned CallSite objects.
- *
- * @param {Error} err
- * @returns {StackTraceFrame[]}
+ * @param err - Error object to parse
  */
 export function parse(err: Error): StackTraceFrame[];
 
@@ -32,6 +28,7 @@ export interface CallSiteObject {
   /**
    * Returns the value of this
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getThis(): any;
 
   /**
@@ -44,6 +41,7 @@ export interface CallSiteObject {
   /**
    * Returns the current function
    */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   getFunction(): Function | undefined;
 
   /**
@@ -101,6 +99,9 @@ export interface CallSiteObject {
   isConstructor(): boolean;
 }
 
+/**
+ * Stack trace frame object
+ */
 export interface StackTraceFrame {
   /**
    * Name of the script if this function was defined in a script

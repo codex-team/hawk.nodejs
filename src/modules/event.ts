@@ -1,4 +1,4 @@
-import { BacktraceFrame } from '@hawk.so/types';
+import type { BacktraceFrame } from '@hawk.so/types';
 import BacktraceHelper from './backtrace.js';
 
 /**
@@ -8,12 +8,11 @@ export default class EventPayload {
   /**
    * Error to be processed
    */
-  public error: Error;
+  public error: Error | undefined;
 
   /**
    * Initialize a class
-   *
-   * @param {Error} error — error event to be processed
+   * @param error — error event to be processed
    */
   constructor(error: Error) {
     this.error = error;
@@ -21,15 +20,13 @@ export default class EventPayload {
 
   /**
    * Return event title
-   *
-   * @returns {string}
    */
   public getTitle(): string {
     /**
      * Built-it wrapper for error title string
      * `${error.type}: ${error.message}`
      */
-    if (this.error && this.error.toString) {
+    if (this.error && typeof this.error.toString === 'function') {
       return this.error.toString();
     }
 
@@ -38,8 +35,6 @@ export default class EventPayload {
 
   /**
    * Return event type
-   *
-   * @returns {string}
    */
   public getType(): string {
     if (this.error && this.error.name) {
@@ -51,10 +46,12 @@ export default class EventPayload {
 
   /**
    * Return event's backtrace
-   *
-   * @returns {BacktraceFrame[]}
    */
   public getBacktrace(): BacktraceFrame[] {
+    if (this.error === undefined) {
+      return [];
+    }
+
     const backtrace = new BacktraceHelper(this.error);
 
     return backtrace.getBacktrace();

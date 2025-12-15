@@ -16,7 +16,7 @@ const cjsPackageJsonContent = {
 };
 
 /**
- * MJS package.json content
+ * package.json content for the MJS bundle
  */
 const mjsPackageJsonContent = {
   type: 'module',

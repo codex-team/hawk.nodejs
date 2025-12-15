@@ -1,6 +1,8 @@
-import { HawkEvent, HawkNodeJSInitialSettings } from '../types/index.js';
-
-import {
+import type { HawkEvent } from '../types/index.js';
+import type { HawkNodeJSInitialSettings } from '../types/index.js';
+import { Buffer } from 'buffer';
+import process from 'process';
+import type {
   EventContext,
   AffectedUser,
   EncodedIntegrationToken,
@@ -10,7 +12,8 @@ import {
   Json
 } from '@hawk.so/types';
 import EventPayload from './modules/event.js';
-import axios, { AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { VERSION } from './version.js';
 
 /**
@@ -26,12 +29,11 @@ let _instance: Catcher;
 /**
  * Hawk NodeJS Catcher
  * Module for errors and exceptions tracking
- *
  * @copyright CodeX
  */
 class Catcher {
   /**
-   * Catcher Type
+   * Type is a family name of a catcher
    */
   private readonly type: string = 'errors/nodejs';
 
@@ -61,9 +63,7 @@ class Catcher {
   private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons>;
 
   /**
-   * Catcher constructor
-   *
-   * @param {HawkNodeJSInitialSettings|string} settings - If settings is a string, it means an Integration Token
+   * @param settings - If settings is a string, it means an Integration Token
    */
   constructor(settings: HawkNodeJSInitialSettings | string) {
     if (typeof settings === 'string') {
@@ -73,9 +73,9 @@ class Catcher {
     }
 
     this.token = settings.token;
-    this.context = settings.context || undefined;
-    this.release = settings.release || undefined;
-    this.beforeSend = settings.beforeSend;
+    this.context = settings.context ?? undefined;
+    this.release = settings.release ?? undefined;
+    this.beforeSend = settings.beforeSend?.bind(undefined);
 
     if (!this.token) {
       throw new Error('Integration Token is missed. You can get it on https://hawk.so at Project Settings.');
@@ -84,15 +84,15 @@ class Catcher {
     try {
       const integrationId = this.getIntegrationId();
 
-      this.collectorEndpoint = settings.collectorEndpoint || `https://${integrationId}.k1.hawk.so/`;
+      this.collectorEndpoint = settings.collectorEndpoint ?? `https://${integrationId}.k1.hawk.so/`;
 
       /**
        * Set global handlers
        */
-      if (!settings.disableGlobalErrorsHandling) {
+      if (settings.disableGlobalErrorsHandling !== true) {
         this.initGlobalHandlers();
       }
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Invalid integration token');
     }
   }
@@ -101,7 +101,11 @@ class Catcher {
    * Catcher package version
    */
   private static getVersion(): string {
-    return VERSION || '';
+    if (VERSION !== undefined && VERSION !== null) {
+      return String(VERSION);
+    }
+
+    return '';
   }
 
   /**
@@ -123,10 +127,9 @@ class Catcher {
   /**
    * This method prepares and sends an Error to Hawk
    * User can fire it manually on try-catch
-   *
-   * @param {Error} error - error to catch
-   * @param {EventContext} context — event context
-   * @param {AffectedUser} user - User identifier
+   * @param error - error to catch
+   * @param context — event context
+   * @param user - User identifier
    */
   public send(error: Error, context?: EventContext, user?: AffectedUser): void {
     /**
@@ -142,7 +145,7 @@ class Catcher {
     const decodedIntegrationTokenAsString = Buffer
       .from(this.token, 'base64')
       .toString('utf-8');
-    const decodedIntegrationToken: DecodedIntegrationToken = JSON.parse(decodedIntegrationTokenAsString);
+    const decodedIntegrationToken = JSON.parse(decodedIntegrationTokenAsString) as DecodedIntegrationToken;
     const integrationId = decodedIntegrationToken.integrationId;
 
     if (!integrationId || integrationId === '') {
@@ -159,7 +162,7 @@ class Catcher {
     /**
      * Catch unhandled exceptions
      */
-    global.process.on('uncaughtException', (err: Error) => {
+    process.on('uncaughtException', (err: Error) => {
       /**
        * Show error data in console
        */
@@ -174,12 +177,14 @@ class Catcher {
     /**
      * Catch unhandled rejections
      */
-    global.process.on('unhandledRejection', (error: Error | string) => {
+    process.on('unhandledRejection', (error: Error | string) => {
       /**
        * Correct reject processing
        */
       if (error instanceof Error) {
-        HawkCatcher.send(error);
+        if (_instance !== undefined) {
+          _instance.send(error);
+        }
       }
 
       /**
@@ -194,16 +199,20 @@ class Catcher {
          */
         const reason = `Unhandled rejection: ${error}`;
 
-        HawkCatcher.send(new UnhandledRejection(reason));
+        if (_instance !== undefined) {
+          _instance.send(new UnhandledRejection(reason));
+        }
       }
 
       /**
        * If we know nothing about an error
        */
-      if (!error) {
+      if (error === undefined) {
         const reason = 'Unhandled rejection';
 
-        HawkCatcher.send(new UnhandledRejection(reason));
+        if (_instance !== undefined) {
+          _instance.send(new UnhandledRejection(reason));
+        }
       }
 
       console.error('Error occurred without a catch block inside the asynchronous function, or because a promise was rejected that was not processed using .catch().\nPromise rejected due to:', error);
@@ -212,10 +221,9 @@ class Catcher {
 
   /**
    * Format and send an error
-   *
-   * @param {Error} err - error to send
-   * @param {EventContext} context — event context
-   * @param {AffectedUser} user - User identifier
+   * @param err - error to send
+   * @param context — event context
+   * @param user - User identifier
    */
   private formatAndSend(err: Error, context?: EventContext, user?: AffectedUser): void {
     const eventPayload = new EventPayload(err);
@@ -236,7 +244,7 @@ class Catcher {
       payload = this.beforeSend(payload);
     }
 
-    this.sendErrorFormatted({
+    void this.sendErrorFormatted({
       token: this.token,
       catcherType: this.type,
       payload,
@@ -245,8 +253,7 @@ class Catcher {
 
   /**
    * Sends formatted EventData<NodeJSAddons> to the Collector
-   *
-   * @param {EventData<NodeJSAddons>>} eventFormatted - formatted event to send
+   * @param eventFormatted - prepared and formatted event to send
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sendErrorFormatted(eventFormatted: HawkEvent): Promise<void | AxiosResponse<any>> {
@@ -258,20 +265,15 @@ class Catcher {
 
   /**
    * Compose User object
-   *
-   * @param {AffectedUser} user - User identifier
-   * @returns {AffectedUser|undefined}
-   * @private
+   * @param user - User identifier
    */
-  private getUser(user?: AffectedUser): AffectedUser|undefined {
+  private getUser(user?: AffectedUser): AffectedUser | undefined {
     return user;
   }
 
   /**
    * Compose context object
-   *
-   * @param {EventContext} context - Any other information to send with event
-   * @returns {EventContext}
+   * @param context - Any other information to send with event
    */
   private getContext(context?: EventContext): Json {
     const contextMerged = {};
@@ -294,8 +296,7 @@ class Catcher {
 export default class HawkCatcher {
   /**
    * Wrapper for HawkCatcher constructor
-   *
-   * @param {HawkNodeJSInitialSettings|string} settings - If settings is a string, it means an Integration Token
+   * @param settings - If settings is a string, it means an Integration Token
    */
   public static init(settings: HawkNodeJSInitialSettings | string): void {
     _instance = new Catcher(settings);
@@ -306,21 +307,20 @@ export default class HawkCatcher {
    *
    * This method prepares and sends an Error to Hawk
    * User can fire it manually on try-catch
-   *
-   * @param {Error} error - error to catch
-   * @param {EventContext} context — event context
-   * @param {AffectedUser} user - User identifier
+   * @param error - error to catch
+   * @param context — event context
+   * @param user - User identifier
    */
   public static send(error: Error, context?: EventContext, user?: AffectedUser): void {
     /**
      * If instance is undefined then do nothing
      */
-    if (_instance) {
+    if (_instance !== undefined) {
       return _instance.send(error, context, user);
     }
   }
 }
 
-export {
+export type {
   HawkNodeJSInitialSettings
 };

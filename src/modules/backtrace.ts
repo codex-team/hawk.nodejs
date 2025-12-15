@@ -1,6 +1,7 @@
-import { BacktraceFrame, SourceCodeLine } from '@hawk.so/types';
+import type { BacktraceFrame, SourceCodeLine } from '@hawk.so/types';
 import fs from 'fs';
-import stackTrace, { StackTraceFrame } from 'stack-trace';
+import type { StackTraceFrame } from 'stack-trace';
+import stackTrace from 'stack-trace';
 
 /**
  * Number of file lines before and after errored line
@@ -15,12 +16,11 @@ export default class BacktraceHelper {
   /**
    * Error to be processed
    */
-  private error: Error;
+  private error: Error | undefined;
 
   /**
    * Initialize a class
-   *
-   * @param {Error} error — event error to be processed
+   * @param error — event error to be processed
    */
   constructor(error: Error) {
     this.error = error;
@@ -28,8 +28,6 @@ export default class BacktraceHelper {
 
   /**
    * Return backtrace matching types scheme
-   *
-   * @returns {BacktraceFrame[]}
    */
   public getBacktrace(): BacktraceFrame[] {
     if (!this.error) {
@@ -55,9 +53,7 @@ export default class BacktraceHelper {
 
   /**
    * Format frame data to BacktraceFrame scheme
-   *
-   * @param {StackTraceFrame} frame — backtrace step
-   * @returns {BacktraceFrame}
+   * @param frame — backtrace step
    */
   private parseStackFrame(frame: StackTraceFrame): BacktraceFrame {
     /** Create variable for sourceCode data */
@@ -84,24 +80,20 @@ export default class BacktraceHelper {
   /**
    * Check if frame is an internal node call
    * You should not reach sources and show code pieces for internal calls
-   *
-   * @param {StackTraceFrame} frame — backtrace step
-   * @returns {boolean}
+   * @param frame — backtrace step
    */
   private isInternal(frame: StackTraceFrame): boolean {
-    const hasEntriesForNonInternalCalls = frame.fileName &&
-      frame.fileName.indexOf(':\\') !== 1 &&
-      !frame.fileName.startsWith('.') &&
-      !frame.fileName.startsWith('/');
+    const hasEntriesForNonInternalCalls = frame.fileName
+      && frame.fileName.indexOf(':\\') !== 1
+      && !frame.fileName.startsWith('.')
+      && !frame.fileName.startsWith('/');
 
-    return frame.native || !!hasEntriesForNonInternalCalls;
+    return frame.native || hasEntriesForNonInternalCalls !== false;
   }
 
   /**
    * Read a source file as an array of lines
-   *
-   * @param {string} filepath - path to file to be read
-   * @returns {string[]}
+   * @param filepath - path to file to be read
    */
   private getSourceFileAsLines(filepath: string): string[] {
     if (!fs.existsSync(filepath)) {
@@ -114,10 +106,9 @@ export default class BacktraceHelper {
 
   /**
    * Return lines as file chuck with a target line
-   *
-   * @param {string} filename - path to file to be read
-   * @param {number} targetLine - number of line with an call
-   * @param {number} linesBuffer — number of lines before and after target line to be read
+   * @param filename - path to file to be read
+   * @param targetLine - number of line with an call
+   * @param linesBuffer — number of lines before and after target line to be read
    */
   private getFileChunk(filename: string, targetLine: number, linesBuffer: number = LINES_BUFFER): SourceCodeLine[] {
     /**

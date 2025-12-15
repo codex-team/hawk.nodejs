@@ -1,0 +1,23 @@
+{
+  "name": "hawk-playground",
+  "version": "1.0.0",
+  "description": "Playground app for testing @hawk.so/nodejs",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "ts-node src/test.ts",
+    "test:dev": "ts-node src/test.ts"
+  },
+  "dependencies": {
+    "@hawk.so/nodejs": "file:../"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.0"
+  }
+}
+
