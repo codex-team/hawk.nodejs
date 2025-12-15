@@ -227,10 +227,12 @@ class Catcher {
    */
   private formatAndSend(err: Error, context?: EventContext, user?: AffectedUser): void {
     const eventPayload = new EventPayload(err);
+    const addons = eventPayload.getAddons();
     let payload: EventData<NodeJSAddons> = {
       title: eventPayload.getTitle(),
       type: eventPayload.getType(),
       backtrace: eventPayload.getBacktrace(),
+      addons: Object.keys(addons).length > 0 ? addons : undefined,
       user: this.getUser(user),
       context: this.getContext(context),
       release: this.release,
