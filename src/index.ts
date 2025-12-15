@@ -101,7 +101,10 @@ class Catcher {
    * Catcher package version
    */
   private static getVersion(): string {
-    return VERSION || '';
+    if (VERSION !== undefined && VERSION !== null) {
+      return String(VERSION);
+    }
+    return '';
   }
 
   /**

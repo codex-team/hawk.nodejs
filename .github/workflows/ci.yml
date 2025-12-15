@@ -15,6 +15,8 @@ jobs:
           node-version-file: '.nvmrc'
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      - name: Generate version file
+        run: yarn prebuild
       - name: Run linter
         run: yarn lint:test
       - name: Build project
