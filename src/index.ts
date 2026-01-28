@@ -241,7 +241,13 @@ class Catcher {
      * Filter sensitive data
      */
     if (typeof this.beforeSend === 'function') {
-      payload = this.beforeSend(payload);
+      const beforeSendResult = this.beforeSend(payload);
+
+      if (typeof beforeSendResult === 'object' && beforeSendResult !== null) {
+        payload = beforeSendResult;
+      } else if (beforeSendResult !== undefined) {
+        console.warn('[Hawk] beforeSend must return event object. Received: ' + typeof beforeSendResult);
+      }
     }
 
     void this.sendErrorFormatted({
