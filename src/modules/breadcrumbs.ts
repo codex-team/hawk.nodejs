@@ -1,10 +1,5 @@
 /**
- * @file Breadcrumbs module - chronological trail of events before an error
- *
- * Current: custom breadcrumbs only (HawkCatcher.breadcrumbs.add()).
- * Possible future auto-capture: outgoing HTTP (patch http.request / https.request or
- * undici), unhandledRejection/uncaughtException as last breadcrumb before send,
- * optional console.log/intercept, DB query hooks (driver-specific).
+ * @file Breadcrumbs module - chronological trail of events before an error. Custom breadcrumbs only (HawkCatcher.breadcrumbs.add()). Possible future auto-capture: outgoing HTTP, unhandledRejection/uncaughtException, console.log/intercept, DB query hooks.
  */
 import type { Breadcrumb } from '@hawk.so/types';
 
@@ -26,7 +21,6 @@ export interface BreadcrumbHint {
 export interface BreadcrumbsOptions {
   /**
    * Maximum number of breadcrumbs to store (FIFO). When the limit is reached, oldest are removed.
-   *
    * @default 15
    */
   maxBreadcrumbs?: number;
@@ -43,8 +37,14 @@ export interface BreadcrumbsOptions {
  */
 export type BreadcrumbInput = Omit<Breadcrumb, 'timestamp'> & { timestamp?: Breadcrumb['timestamp'] };
 
+/**
+ * Internal breadcrumbs options (all fields set during init from BreadcrumbsOptions)
+ */
 interface InternalBreadcrumbsOptions {
+  /** Maximum number of breadcrumbs to keep (FIFO) */
   maxBreadcrumbs: number;
+
+  /** Optional hook before storing each breadcrumb */
   beforeBreadcrumb?: BreadcrumbsOptions['beforeBreadcrumb'];
 }
 

@@ -35,6 +35,11 @@ let _instance: Catcher;
  */
 class Catcher {
   /**
+   * Whether breadcrumbs are enabled (false when settings.breadcrumbs === false)
+   */
+  public readonly breadcrumbsEnabled: boolean;
+
+  /**
    * Type is a family name of a catcher
    */
   private readonly type: string = 'errors/nodejs';
@@ -65,11 +70,6 @@ class Catcher {
   private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons>;
 
   /**
-   * Whether breadcrumbs are enabled (false when settings.breadcrumbs === false)
-   */
-  public readonly breadcrumbsEnabled: boolean;
-
-  /**
    * @param settings - If settings is a string, it means an Integration Token
    */
   constructor(settings: HawkNodeJSInitialSettings | string) {
@@ -89,7 +89,7 @@ class Catcher {
       BreadcrumbManager.getInstance().init(
         typeof settings.breadcrumbs === 'object' && settings.breadcrumbs !== null
           ? settings.breadcrumbs
-          : {},
+          : {}
       );
     }
 
@@ -367,8 +367,13 @@ export default class HawkCatcher {
  * Breadcrumbs API - same surface as in @hawk.so/javascript (add, get, clear)
  */
 export interface BreadcrumbsAPI {
+  /** Add a breadcrumb to the buffer (attached to the next sent event) */
   add(breadcrumb: BreadcrumbInput, hint?: BreadcrumbHint): void;
+
+  /** Get current breadcrumbs snapshot (oldest to newest) */
   get(): Breadcrumb[];
+
+  /** Clear all breadcrumbs */
   clear(): void;
 }
 
