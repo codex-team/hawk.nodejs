@@ -39,9 +39,7 @@ export interface HawkNodeJSInitialSettings {
   disableGlobalErrorsHandling?: boolean;
 
   /**
-   * Pass false to disable breadcrumbs.
-   * Pass options object to configure maxBreadcrumbs and beforeBreadcrumb hook.
-   *
+   * Pass false to disable breadcrumbs. Pass options object to configure maxBreadcrumbs and beforeBreadcrumb hook.
    * @default { maxBreadcrumbs: 15 }
    */
   breadcrumbs?: false | BreadcrumbsOptions;

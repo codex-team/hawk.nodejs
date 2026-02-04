@@ -26,8 +26,10 @@ export interface BreadcrumbsOptions {
   maxBreadcrumbs?: number;
 
   /**
-   * Hook called before each breadcrumb is stored.
-   * Return null to discard the breadcrumb. Return modified breadcrumb to store it.
+   * Hook called before each breadcrumb is stored. Return null to discard. Return modified breadcrumb to store it.
+   * @param breadcrumb - Breadcrumb to store (can be mutated and returned)
+   * @param hint - Optional context (e.g. for filtering)
+   * @returns Modified breadcrumb to store, or null to discard
    */
   beforeBreadcrumb?: (breadcrumb: Breadcrumb, hint?: BreadcrumbHint) => Breadcrumb | null;
 }
@@ -35,6 +37,7 @@ export interface BreadcrumbsOptions {
 /**
  * Breadcrumb input - timestamp optional (auto-generated if omitted). Same as @hawk.so/javascript BreadcrumbInput.
  */
+// eslint-disable-next-line jsdoc/require-jsdoc -- type alias documented above
 export type BreadcrumbInput = Omit<Breadcrumb, 'timestamp'> & { timestamp?: Breadcrumb['timestamp'] };
 
 /**
@@ -62,8 +65,15 @@ export class BreadcrumbManager {
 
   private isInitialized = false;
 
+  /**
+   * Private constructor for singleton
+   */
   private constructor() {}
 
+  /**
+   * Get singleton instance (created on first call).
+   * @returns The shared BreadcrumbManager
+   */
   public static getInstance(): BreadcrumbManager {
     if (BreadcrumbManager.instance === null) {
       BreadcrumbManager.instance = new BreadcrumbManager();
@@ -74,6 +84,7 @@ export class BreadcrumbManager {
 
   /**
    * Initialize with options. Call once when HawkCatcher.init() runs.
+   * @param options - Configuration (maxBreadcrumbs, beforeBreadcrumb)
    */
   public init(options: BreadcrumbsOptions = {}): void {
     if (this.isInitialized) {
@@ -90,6 +101,8 @@ export class BreadcrumbManager {
 
   /**
    * Add a breadcrumb. Timestamp is set to Date.now() if omitted.
+   * @param breadcrumb - Breadcrumb data (type, message, category, level, data)
+   * @param hint - Optional hint for beforeBreadcrumb callback
    */
   public addBreadcrumb(breadcrumb: BreadcrumbInput, hint?: BreadcrumbHint): void {
     const bc: Breadcrumb = {
@@ -126,12 +139,5 @@ export class BreadcrumbManager {
    */
   public clear(): void {
     this.breadcrumbs.length = 0;
-  }
-
-  /**
-   * Reset singleton (for tests)
-   */
-  public static resetInstance(): void {
-    BreadcrumbManager.instance = null;
   }
 }
