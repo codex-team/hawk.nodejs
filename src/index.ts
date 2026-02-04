@@ -245,7 +245,7 @@ class Catcher {
     const eventPayload = new EventPayload(err);
     const breadcrumbs = this.breadcrumbsEnabled ? BreadcrumbManager.getInstance().getBreadcrumbs() : [];
 
-    let payload: EventData<NodeJSAddons> = {
+    let payload = {
       title: eventPayload.getTitle(),
       type: eventPayload.getType(),
       backtrace: eventPayload.getBacktrace(),
@@ -254,7 +254,7 @@ class Catcher {
       release: this.release,
       catcherVersion: Catcher.getVersion(),
       breadcrumbs: breadcrumbs.length > 0 ? breadcrumbs : null,
-    };
+    } as EventData<NodeJSAddons>;
 
     /**
      * Filter sensitive data
