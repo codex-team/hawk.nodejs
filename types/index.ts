@@ -1,4 +1,7 @@
 import type { EventData, NodeJSAddons } from '@hawk.so/types';
+import type { BreadcrumbsOptions } from '../src/modules/breadcrumbs.js';
+
+export type { BreadcrumbsOptions };
 
 /**
  * Initial settings object
@@ -34,6 +37,14 @@ export interface HawkNodeJSInitialSettings {
    * This options still allow you send events manually
    */
   disableGlobalErrorsHandling?: boolean;
+
+  /**
+   * Pass false to disable breadcrumbs.
+   * Pass options object to configure maxBreadcrumbs and beforeBreadcrumb hook.
+   *
+   * @default { maxBreadcrumbs: 15 }
+   */
+  breadcrumbs?: false | BreadcrumbsOptions;
 }
 
 /**
