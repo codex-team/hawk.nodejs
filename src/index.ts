@@ -14,29 +14,10 @@ import type {
 } from '@hawk.so/types';
 import EventPayload from './modules/event.js';
 import { BreadcrumbManager, type BreadcrumbInput, type BreadcrumbHint } from './modules/breadcrumbs.js';
+import { isValidEventPayload } from './modules/validate-event.js';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { VERSION } from './version.js';
-
-/**
- * Checks if value is a plain object (not array, Date, etc.)
- */
-function isPlainObject(v: unknown): v is Record<string, unknown> {
-  return Object.prototype.toString.call(v) === '[object Object]';
-}
-
-/**
- * Minimal required fields check:
- * - payload must be a plain object
- * - payload.title must be a non-empty string
- */
-function hasRequiredEventFields(v: unknown): v is { title: string } {
-  if (!isPlainObject(v)) {
-    return false;
-  }
-
-  return typeof v.title === 'string' && v.title.trim() !== '';
-}
 
 /**
  * Class for throwing errors inside unhandledRejection processor
@@ -290,31 +271,20 @@ class Catcher {
       }
 
       /**
-       * If user returned nothing — keep original payload
+       * If user returned a value — use it; if undefined (no return / in-place mutation) — keep payload reference
        */
-      if (result !== undefined) {
-        /**
-         * Accept only payloads that still have required fields (minimal check)
-         */
-        if (hasRequiredEventFields(result)) {
-          payload = result as EventData<NodeJSAddons>;
-        } else {
-          console.warn(
-            `[Hawk] beforeSend returned invalid payload. ` +
-            `Keeping original payload. Received: ${Object.prototype.toString.call(result)}`
-          );
-        }
-      }
+      const candidate = result ?? payload;
 
-      /**
-       * Final safety check:
-       * protects from in-place mutation of `payload` when beforeSend returns undefined
-       */
-      if (!hasRequiredEventFields(payload)) {
-        console.warn('[Hawk] payload corrupted after beforeSend, event dropped');
+      if (!isValidEventPayload(candidate)) {
+        console.warn(
+          '[Hawk] beforeSend produced invalid payload (missing required fields), event dropped. '
+          + `Received: ${Object.prototype.toString.call(candidate)}`
+        );
 
         return;
       }
+
+      payload = candidate;
     }
 
     void this.sendErrorFormatted({
