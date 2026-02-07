@@ -377,4 +377,5 @@ export interface BreadcrumbsAPI {
   clear(): void;
 }
 
-export type { BreadcrumbInput, BreadcrumbHint, HawkNodeJSInitialSettings };
+export type { BreadcrumbInput, BreadcrumbHint, BreadcrumbsOptions } from './modules/breadcrumbs.js';
+export type { HawkNodeJSInitialSettings } from '../types/index.js';
