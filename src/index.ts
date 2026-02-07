@@ -367,7 +367,7 @@ export default class HawkCatcher {
  * Breadcrumbs API - same surface as in @hawk.so/javascript (add, get, clear)
  */
 export interface BreadcrumbsAPI {
-  /** Add a breadcrumb to the buffer (attached to the next sent event) */
+  /** Add a breadcrumb to the buffer (attached to every event until cleared) */
   add(breadcrumb: BreadcrumbInput, hint?: BreadcrumbHint): void;
 
   /** Get current breadcrumbs snapshot (oldest to newest) */

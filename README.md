@@ -207,7 +207,7 @@ HawkCatcher.init({
 
 #### Manual breadcrumbs
 
-Add custom breadcrumbs manually (they are attached to the next event sent):
+Add custom breadcrumbs manually. Breadcrumbs accumulate in a buffer and are attached to every event until explicitly cleared via `HawkCatcher.breadcrumbs.clear()`:
 
 ```js
 HawkCatcher.breadcrumbs.add({
