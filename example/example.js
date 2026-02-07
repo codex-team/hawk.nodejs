@@ -16,7 +16,7 @@
  *   HawkCatcher.send(err);
  * }
  */
-const HawkCatcher = require('../dist/src/index').default;
+const HawkCatcher = require('../dist/cjs/src/index.js').default;
 
 /**
  * Initialize Hawk catcher

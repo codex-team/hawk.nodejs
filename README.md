@@ -13,6 +13,7 @@ Initialization params:
 | `context` | object | optional | Any data you want to pass with every message. |
 | `disableGlobalErrorsHandling` | boolean | optional | Do not initialize global errors handling |
 | `beforeSend` | function(event) => event | optional | This Method allows you to filter any data you don't want sending to Hawk |
+| `breadcrumbs` | `false` or object | optional | Pass `false` to disable. Pass options object to configure (see [Breadcrumbs](#breadcrumbs)). Default: enabled. |
 
 
 ## Usage
@@ -151,6 +152,87 @@ Available fields:
 });
  }
  ```
+
+### Breadcrumbs
+
+Breadcrumbs track events leading up to an error, providing context for debugging. Same API as [@hawk.so/javascript](https://www.npmjs.com/package/@hawk.so/javascript) (add, get, clear); in Node there is no automatic tracking of fetch/navigation/clicks, only manual breadcrumbs.
+
+#### Default configuration
+
+By default, breadcrumbs are enabled (custom breadcrumbs only):
+
+```js
+HawkCatcher.init({
+  token: 'INTEGRATION_TOKEN'
+  // breadcrumbs enabled by default
+});
+```
+
+#### Disabling breadcrumbs
+
+To disable breadcrumbs entirely:
+
+```js
+HawkCatcher.init({
+  token: 'INTEGRATION_TOKEN',
+  breadcrumbs: false
+});
+```
+
+#### Custom configuration
+
+Configure breadcrumbs (same options as JS where applicable):
+
+```js
+HawkCatcher.init({
+  token: 'INTEGRATION_TOKEN',
+  breadcrumbs: {
+    maxBreadcrumbs: 20,
+    beforeBreadcrumb: (breadcrumb, hint) => {
+      if (breadcrumb.category === 'auth' && breadcrumb.data?.userId) {
+        return null; // Discard
+      }
+      return breadcrumb;
+    }
+  }
+});
+```
+
+#### Breadcrumbs options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `maxBreadcrumbs` | `number` | `15` | Maximum number of breadcrumbs to store. When the limit is reached, oldest breadcrumbs are removed (FIFO). |
+| `beforeBreadcrumb` | `function` | `undefined` | Hook called before each breadcrumb is stored. Receives `(breadcrumb, hint)` and can return modified breadcrumb, `null` to discard it, or the original breadcrumb. |
+
+#### Manual breadcrumbs
+
+Add custom breadcrumbs manually. Breadcrumbs accumulate in a buffer and are attached to every event until explicitly cleared via `HawkCatcher.breadcrumbs.clear()`:
+
+```js
+HawkCatcher.breadcrumbs.add({
+  type: 'logic',
+  category: 'auth',
+  message: 'User logged in',
+  level: 'info',
+  data: { userId: '123' }
+});
+```
+
+#### Breadcrumb methods
+
+Same as in JS catcher:
+
+```js
+// Add a breadcrumb
+HawkCatcher.breadcrumbs.add(breadcrumb, hint);
+
+// Get current breadcrumbs
+const breadcrumbs = HawkCatcher.breadcrumbs.get();
+
+// Clear all breadcrumbs
+HawkCatcher.breadcrumbs.clear();
+```
 
 ### Sensitive data filtering
 
