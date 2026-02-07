@@ -5,6 +5,7 @@ import process from 'process';
 import type {
   EventContext,
   AffectedUser,
+  Breadcrumb,
   EncodedIntegrationToken,
   DecodedIntegrationToken,
   EventData,
@@ -12,6 +13,7 @@ import type {
   Json
 } from '@hawk.so/types';
 import EventPayload from './modules/event.js';
+import { BreadcrumbManager, type BreadcrumbInput, type BreadcrumbHint } from './modules/breadcrumbs.js';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { VERSION } from './version.js';
@@ -32,6 +34,11 @@ let _instance: Catcher;
  * @copyright CodeX
  */
 class Catcher {
+  /**
+   * Whether breadcrumbs are enabled (false when settings.breadcrumbs === false)
+   */
+  public readonly breadcrumbsEnabled: boolean;
+
   /**
    * Type is a family name of a catcher
    */
@@ -76,6 +83,15 @@ class Catcher {
     this.context = settings.context ?? undefined;
     this.release = settings.release ?? undefined;
     this.beforeSend = settings.beforeSend?.bind(undefined);
+    this.breadcrumbsEnabled = settings.breadcrumbs !== false;
+
+    if (this.breadcrumbsEnabled) {
+      BreadcrumbManager.getInstance().init(
+        typeof settings.breadcrumbs === 'object' && settings.breadcrumbs !== null
+          ? settings.breadcrumbs
+          : {}
+      );
+    }
 
     if (!this.token) {
       throw new Error('Integration Token is missed. You can get it on https://hawk.so at Project Settings.');
@@ -227,7 +243,9 @@ class Catcher {
    */
   private formatAndSend(err: Error, context?: EventContext, user?: AffectedUser): void {
     const eventPayload = new EventPayload(err);
-    let payload: EventData<NodeJSAddons> = {
+    const breadcrumbs = this.breadcrumbsEnabled ? BreadcrumbManager.getInstance().getBreadcrumbs() : [];
+
+    let payload = {
       title: eventPayload.getTitle(),
       type: eventPayload.getType(),
       backtrace: eventPayload.getBacktrace(),
@@ -235,7 +253,8 @@ class Catcher {
       context: this.getContext(context),
       release: this.release,
       catcherVersion: Catcher.getVersion(),
-    };
+      breadcrumbs: breadcrumbs.length > 0 ? breadcrumbs : null,
+    } as EventData<NodeJSAddons>;
 
     /**
      * Filter sensitive data
@@ -319,8 +338,44 @@ export default class HawkCatcher {
       return _instance.send(error, context, user);
     }
   }
+
+  /**
+   * Breadcrumbs API (same as in JS catcher: add, get, clear).
+   * No-op when breadcrumbs were disabled (breadcrumbs: false).
+   */
+  public static get breadcrumbs(): BreadcrumbsAPI {
+    return {
+      add: (breadcrumb, hint) => {
+        if (_instance !== undefined && _instance.breadcrumbsEnabled) {
+          BreadcrumbManager.getInstance().addBreadcrumb(breadcrumb, hint);
+        }
+      },
+      get: () =>
+        _instance !== undefined && _instance.breadcrumbsEnabled
+          ? BreadcrumbManager.getInstance().getBreadcrumbs()
+          : [],
+      clear: () => {
+        if (_instance !== undefined && _instance.breadcrumbsEnabled) {
+          BreadcrumbManager.getInstance().clear();
+        }
+      },
+    };
+  }
 }
 
-export type {
-  HawkNodeJSInitialSettings
-};
+/**
+ * Breadcrumbs API - same surface as in @hawk.so/javascript (add, get, clear)
+ */
+export interface BreadcrumbsAPI {
+  /** Add a breadcrumb to the buffer (attached to every event until cleared) */
+  add(breadcrumb: BreadcrumbInput, hint?: BreadcrumbHint): void;
+
+  /** Get current breadcrumbs snapshot (oldest to newest) */
+  get(): Breadcrumb[];
+
+  /** Clear all breadcrumbs */
+  clear(): void;
+}
+
+export type { BreadcrumbInput, BreadcrumbHint, BreadcrumbsOptions } from './modules/breadcrumbs.js';
+export type { HawkNodeJSInitialSettings } from '../types/index.js';
