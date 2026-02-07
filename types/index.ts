@@ -28,9 +28,10 @@ export interface HawkNodeJSInitialSettings {
   context?: HawkNodeJSEventContext;
 
   /**
-   * This Method allows you to filter any data you don't want sending to Hawk
+   * This Method allows you to filter any data you don't want sending to Hawk.
+   * Return modified event, null to drop the event, or void/undefined to keep original.
    */
-  beforeSend?(event: EventData<NodeJSAddons>): EventData<NodeJSAddons>;
+  beforeSend?(event: EventData<NodeJSAddons>): EventData<NodeJSAddons> | void | null;
 
   /**
    * Do not initialize global errors handling

@@ -19,6 +19,26 @@ import axios from 'axios';
 import { VERSION } from './version.js';
 
 /**
+ * Checks if value is a plain object (not array, Date, etc.)
+ */
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return Object.prototype.toString.call(v) === '[object Object]';
+}
+
+/**
+ * Minimal required fields check:
+ * - payload must be a plain object
+ * - payload.title must be a non-empty string
+ */
+function hasRequiredEventFields(v: unknown): v is { title: string } {
+  if (!isPlainObject(v)) {
+    return false;
+  }
+
+  return typeof v.title === 'string' && v.title.trim() !== '';
+}
+
+/**
  * Class for throwing errors inside unhandledRejection processor
  */
 class UnhandledRejection extends Error {}
@@ -67,7 +87,7 @@ class Catcher {
   /**
    * This Method allows developer to filter any data you don't want sending to Hawk
    */
-  private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons>;
+  private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons> | void | null;
 
   /**
    * @param settings - If settings is a string, it means an Integration Token
@@ -260,12 +280,40 @@ class Catcher {
      * Filter sensitive data
      */
     if (typeof this.beforeSend === 'function') {
-      const beforeSendResult = this.beforeSend(payload);
+      const result = this.beforeSend(payload);
 
-      if (typeof beforeSendResult === 'object' && beforeSendResult !== null) {
-        payload = beforeSendResult;
-      } else if (beforeSendResult !== undefined) {
-        console.warn('[Hawk] beforeSend must return event object. Received: ' + typeof beforeSendResult);
+      /**
+       * Allow user to intentionally drop event
+       */
+      if (result === null) {
+        return;
+      }
+
+      /**
+       * If user returned nothing — keep original payload
+       */
+      if (result !== undefined) {
+        /**
+         * Accept only payloads that still have required fields (minimal check)
+         */
+        if (hasRequiredEventFields(result)) {
+          payload = result as EventData<NodeJSAddons>;
+        } else {
+          console.warn(
+            `[Hawk] beforeSend returned invalid payload. ` +
+            `Keeping original payload. Received: ${Object.prototype.toString.call(result)}`
+          );
+        }
+      }
+
+      /**
+       * Final safety check:
+       * protects from in-place mutation of `payload` when beforeSend returns undefined
+       */
+      if (!hasRequiredEventFields(payload)) {
+        console.warn('[Hawk] payload corrupted after beforeSend, event dropped');
+
+        return;
       }
     }
 
