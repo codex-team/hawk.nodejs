@@ -275,16 +275,14 @@ class Catcher {
        */
       const candidate = result ?? payload;
 
-      if (!isValidEventPayload(candidate)) {
+      if (isValidEventPayload(candidate)) {
+        payload = candidate;
+      } else {
         console.warn(
-          '[Hawk] beforeSend produced invalid payload (missing required fields), event dropped. '
+          '[Hawk] beforeSend produced invalid payload (missing required fields), sending original. '
           + `Received: ${Object.prototype.toString.call(candidate)}`
         );
-
-        return;
       }
-
-      payload = candidate;
     }
 
     void this.sendErrorFormatted({

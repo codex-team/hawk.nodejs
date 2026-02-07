@@ -12,7 +12,7 @@ Initialization params:
 | `release` | string | optional | Unique identifier of the release. |
 | `context` | object | optional | Any data you want to pass with every message. |
 | `disableGlobalErrorsHandling` | boolean | optional | Do not initialize global errors handling |
-| `beforeSend` | function(event) => event | optional | This Method allows you to filter any data you don't want sending to Hawk |
+| `beforeSend` | function(event) => event \| null \| void | optional | Filter data before sending. Return modified event, `null` to drop the event, or `void` to keep original. |
 | `breadcrumbs` | `false` or object | optional | Pass `false` to disable. Pass options object to configure (see [Breadcrumbs](#breadcrumbs)). Default: enabled. |
 
 
@@ -236,19 +236,40 @@ HawkCatcher.breadcrumbs.clear();
 
 ### Sensitive data filtering
 
-You can filter any data that you don't want to send to Hawk. Use the `beforeSend()` hook for that reason.
+Use the `beforeSend()` hook to filter data before sending to Hawk.
+
+- **Return modified event** — the modified event will be sent
+- **Return `null`** — the event will be dropped entirely
+- **Return nothing (`void`)** — the original event will be sent as-is
+- If `beforeSend` returns an invalid payload, a warning is logged and the original event is sent
 
 ```js
 HawkCatcher.init({
   token: 'INTEGRATION TOKEN',
-  beforeSend(event){
-    if (event.user && event.user.name){
+  beforeSend(event) {
+    // Strip sensitive user data
+    if (event.user && event.user.name) {
       delete event.user.name;
     }
 
     return event;
   }
-})
+});
+```
+
+Drop an event entirely:
+
+```js
+HawkCatcher.init({
+  token: 'INTEGRATION TOKEN',
+  beforeSend(event) {
+    if (event.title.includes('ignore-me')) {
+      return null;
+    }
+
+    return event;
+  }
+});
 ```
 
 ## License
