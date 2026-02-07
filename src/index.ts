@@ -14,7 +14,7 @@ import type {
 } from '@hawk.so/types';
 import EventPayload from './modules/event.js';
 import { BreadcrumbManager, type BreadcrumbInput, type BreadcrumbHint } from './modules/breadcrumbs.js';
-import { isValidEventPayload } from './modules/validate-event.js';
+import { isValidEventPayload } from './utils/validate-event.js';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { VERSION } from './version.js';

@@ -31,6 +31,6 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', 'playground/**', 'example/**'],
+    ignores: ['dist/**', 'node_modules/**', 'playground/**', 'example/**', 'tests/**', 'vitest.config.ts'],
   },
 ];

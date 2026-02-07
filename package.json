@@ -11,9 +11,9 @@
   "types": "./dist/mjs/src/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/mjs/src/index.d.ts",
       "import": "./dist/mjs/src/index.js",
-      "require": "./dist/cjs/src/index.js",
-      "types": "./dist/mjs/src/index.d.ts"
+      "require": "./dist/cjs/src/index.js"
     }
   },
   "scripts": {
@@ -21,6 +21,8 @@
     "build": "yarn clean && tsc -p tsconfig.json && tsc -p tsconfig-cjs.json && node ./create-packages.js",
     "build:watch": "yarn clean && tsc-watch",
     "example": "node ./example/example.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint . --fix",
     "lint:test": "eslint .",
     "clean": "rimraf dist"
@@ -36,7 +38,8 @@
     "eslint-config-codex": "^2.0.3",
     "rimraf": "^6.1.2",
     "tsc-watch": "^7.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "repository": {
     "type": "git",
