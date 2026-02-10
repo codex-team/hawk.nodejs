@@ -32,7 +32,7 @@ HawkCatcher.init({
        * Example: discard breadcrumbs with sensitive category
        */
       if (breadcrumb.category === 'secret') {
-        return null;
+        return false;
       }
 
       return breadcrumb;
