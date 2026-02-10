@@ -307,7 +307,7 @@ class Catcher {
        * If user returned nothing (void/undefined/null) — warn and keep original payload
        */
       if (result === undefined || result === null) {
-        console.warn('[Hawk] beforeSend returned nothing, sending original event.');
+        console.warn(`[Hawk] Invalid beforeSend value: (${result}). It should return event or false. Event is sent without changes.`);
       } else if (isValidEventPayload(result)) {
         payload = result;
       } else {
