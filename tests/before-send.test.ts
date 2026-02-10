@@ -56,7 +56,7 @@ describe('beforeSend processing', () => {
     warnSpy.mockRestore();
   });
 
-  it('sends events as is when beforeSend does not change it', () => {
+  it('sends event as is when beforeSend does not change it', () => {
     initWithBeforeSend((event) => event);
 
     HawkCatcher.send(new Error('test'));
