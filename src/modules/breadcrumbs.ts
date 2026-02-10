@@ -26,12 +26,15 @@ export interface BreadcrumbsOptions {
   maxBreadcrumbs?: number;
 
   /**
-   * Hook called before each breadcrumb is stored. Return null to discard. Return modified breadcrumb to store it.
+   * Hook called before each breadcrumb is stored.
+   * - Return modified breadcrumb — it will be stored instead of the original.
+   * - Return `false` — the breadcrumb will be discarded.
+   * - Return nothing (`void` / `undefined` / `null`) — the original breadcrumb is stored as-is (a warning is logged).
+   * - If the hook returns an invalid value, a warning is logged and the original breadcrumb is stored.
    * @param breadcrumb - Breadcrumb to store (can be mutated and returned)
    * @param hint - Optional context (e.g. for filtering)
-   * @returns Modified breadcrumb to store, or null to discard
    */
-  beforeBreadcrumb?: (breadcrumb: Breadcrumb, hint?: BreadcrumbHint) => Breadcrumb | null;
+  beforeBreadcrumb?: (breadcrumb: Breadcrumb, hint?: BreadcrumbHint) => Breadcrumb | false | void;
 }
 
 /**
@@ -49,6 +52,25 @@ interface InternalBreadcrumbsOptions {
 
   /** Optional hook before storing each breadcrumb */
   beforeBreadcrumb?: BreadcrumbsOptions['beforeBreadcrumb'];
+}
+
+/**
+ * Runtime check that value is a valid Breadcrumb-like object.
+ * Must be a plain object with a numeric timestamp.
+ * @param v - value to validate
+ */
+function isValidBreadcrumb(v: unknown): v is Breadcrumb {
+  if (typeof v !== 'object' || v === null || Array.isArray(v)) {
+    return false;
+  }
+
+  const candidate = v as Record<string, unknown>;
+
+  if (candidate.timestamp !== undefined && typeof candidate.timestamp !== 'number') {
+    return false;
+  }
+
+  return true;
 }
 
 /**
@@ -113,11 +135,26 @@ export class BreadcrumbManager {
     if (this.options.beforeBreadcrumb) {
       const result = this.options.beforeBreadcrumb(bc, hint);
 
-      if (result === null) {
+      /**
+       * false means discard
+       */
+      if (result === false) {
         return;
       }
 
-      Object.assign(bc, result);
+      /**
+       * void/undefined/null — warn and keep original breadcrumb
+       */
+      if (result === undefined || result === null) {
+        console.warn('[Hawk] beforeBreadcrumb returned nothing, storing original breadcrumb.');
+      } else if (isValidBreadcrumb(result)) {
+        Object.assign(bc, result);
+      } else {
+        console.warn(
+          '[Hawk] beforeBreadcrumb produced invalid breadcrumb (must be an object with numeric timestamp), storing original. '
+          + `Received: ${Object.prototype.toString.call(result)}`
+        );
+      }
     }
 
     this.breadcrumbs.push(bc);

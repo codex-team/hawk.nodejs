@@ -12,7 +12,7 @@ Initialization params:
 | `release` | string | optional | Unique identifier of the release. |
 | `context` | object | optional | Any data you want to pass with every message. |
 | `disableGlobalErrorsHandling` | boolean | optional | Do not initialize global errors handling |
-| `beforeSend` | function(event) => event | optional | This Method allows you to filter any data you don't want sending to Hawk |
+| `beforeSend` | function(event) => event \| false \| void | optional | Filter data before sending. Return modified event, `false` to drop the event. |
 | `breadcrumbs` | `false` or object | optional | Pass `false` to disable. Pass options object to configure (see [Breadcrumbs](#breadcrumbs)). Default: enabled. |
 
 
@@ -190,7 +190,7 @@ HawkCatcher.init({
     maxBreadcrumbs: 20,
     beforeBreadcrumb: (breadcrumb, hint) => {
       if (breadcrumb.category === 'auth' && breadcrumb.data?.userId) {
-        return null; // Discard
+        return false; // Discard
       }
       return breadcrumb;
     }
@@ -203,7 +203,7 @@ HawkCatcher.init({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `maxBreadcrumbs` | `number` | `15` | Maximum number of breadcrumbs to store. When the limit is reached, oldest breadcrumbs are removed (FIFO). |
-| `beforeBreadcrumb` | `function` | `undefined` | Hook called before each breadcrumb is stored. Receives `(breadcrumb, hint)` and can return modified breadcrumb, `null` to discard it, or the original breadcrumb. |
+| `beforeBreadcrumb` | `function` | `undefined` | Hook called before each breadcrumb is stored. Receives `(breadcrumb, hint)`. Return modified breadcrumb to keep it, `false` to discard. |
 
 #### Manual breadcrumbs
 
@@ -236,19 +236,40 @@ HawkCatcher.breadcrumbs.clear();
 
 ### Sensitive data filtering
 
-You can filter any data that you don't want to send to Hawk. Use the `beforeSend()` hook for that reason.
+Use the `beforeSend()` hook to filter data before sending to Hawk.
+
+- **Return modified event** — the modified event will be sent
+- **Return `false`** — the event will be dropped entirely
+- **Return nothing (`void` / `undefined` / `null`)** — the original event will be sent as-is
+- If `beforeSend` returns an invalid payload, a warning is logged and the original event is sent
 
 ```js
 HawkCatcher.init({
   token: 'INTEGRATION TOKEN',
-  beforeSend(event){
-    if (event.user && event.user.name){
+  beforeSend(event) {
+    // Strip sensitive user data
+    if (event.user && event.user.name) {
       delete event.user.name;
     }
 
     return event;
   }
-})
+});
+```
+
+Drop an event entirely:
+
+```js
+HawkCatcher.init({
+  token: 'INTEGRATION TOKEN',
+  beforeSend(event) {
+    if (event.title.includes('ignore-me')) {
+      return false;
+    }
+
+    return event;
+  }
+});
 ```
 
 ## License

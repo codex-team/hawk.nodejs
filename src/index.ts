@@ -14,6 +14,7 @@ import type {
 } from '@hawk.so/types';
 import EventPayload from './modules/event.js';
 import { BreadcrumbManager, type BreadcrumbInput, type BreadcrumbHint } from './modules/breadcrumbs.js';
+import { isValidEventPayload } from './utils/validate-event.js';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import { VERSION } from './version.js';
@@ -65,9 +66,13 @@ class Catcher {
   private readonly context?: EventContext;
 
   /**
-   * This Method allows developer to filter any data you don't want sending to Hawk
+   * This Method allows developer to filter any data you don't want sending to Hawk.
+   *
+   * - Return modified event — it will be sent instead of the original.
+   * - Return `false` — the event will be dropped entirely.
+   * - Return nothing (`void` / `undefined` / `null`) — the original event is sent as-is (a warning is logged).
    */
-  private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons>;
+  private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons> | false | void;
 
   /**
    * @param settings - If settings is a string, it means an Integration Token
@@ -152,6 +157,35 @@ class Catcher {
      * Compose and send a request to Hawk
      */
     this.formatAndSend(error, context, user);
+  }
+
+  /**
+   * Add a breadcrumb to the buffer (no-op when breadcrumbs are disabled)
+   * @param breadcrumb - Breadcrumb data (type, message, category, level, data)
+   * @param hint - Optional hint for beforeBreadcrumb callback
+   */
+  public addBreadcrumb(breadcrumb: BreadcrumbInput, hint?: BreadcrumbHint): void {
+    if (this.breadcrumbsEnabled) {
+      BreadcrumbManager.getInstance().addBreadcrumb(breadcrumb, hint);
+    }
+  }
+
+  /**
+   * Get current breadcrumbs snapshot (oldest to newest)
+   */
+  public getBreadcrumbs(): Breadcrumb[] {
+    return this.breadcrumbsEnabled
+      ? BreadcrumbManager.getInstance().getBreadcrumbs()
+      : [];
+  }
+
+  /**
+   * Clear all breadcrumbs
+   */
+  public clearBreadcrumbs(): void {
+    if (this.breadcrumbsEnabled) {
+      BreadcrumbManager.getInstance().clear();
+    }
   }
 
   /**
@@ -260,7 +294,40 @@ class Catcher {
      * Filter sensitive data
      */
     if (typeof this.beforeSend === 'function') {
-      payload = this.beforeSend(payload);
+      const result = this.beforeSend(payload);
+
+      /**
+       * Allow user to intentionally drop event by returning false
+       */
+      if (result === false) {
+        return;
+      }
+
+      /**
+       * If user returned nothing (void/undefined/null) — warn and keep original payload
+       */
+      if (result === undefined || result === null) {
+        console.warn(`[Hawk] Invalid beforeSend value: (${String(result)}). It should return event or false. Event is sent without changes.`);
+      } else if (isValidEventPayload(result)) {
+        payload = result;
+      } else {
+        let received: string;
+
+        try {
+          received = JSON.stringify(result);
+        } catch {
+          try {
+            received = String(result);
+          } catch {
+            received = Object.prototype.toString.call(result);
+          }
+        }
+
+        console.warn(
+          '[Hawk] beforeSend produced invalid payload (missing required fields), sending original. '
+          + `Received: ${received}`
+        );
+      }
     }
 
     void this.sendErrorFormatted({
@@ -341,22 +408,22 @@ export default class HawkCatcher {
 
   /**
    * Breadcrumbs API (same as in JS catcher: add, get, clear).
-   * No-op when breadcrumbs were disabled (breadcrumbs: false).
+   * No-op when breadcrumbs were disabled (breadcrumbs: false) or Catcher is not initialized.
    */
   public static get breadcrumbs(): BreadcrumbsAPI {
     return {
       add: (breadcrumb, hint) => {
-        if (_instance !== undefined && _instance.breadcrumbsEnabled) {
-          BreadcrumbManager.getInstance().addBreadcrumb(breadcrumb, hint);
+        if (_instance !== undefined) {
+          _instance.addBreadcrumb(breadcrumb, hint);
         }
       },
       get: () =>
-        _instance !== undefined && _instance.breadcrumbsEnabled
-          ? BreadcrumbManager.getInstance().getBreadcrumbs()
+        _instance !== undefined
+          ? _instance.getBreadcrumbs()
           : [],
       clear: () => {
-        if (_instance !== undefined && _instance.breadcrumbsEnabled) {
-          BreadcrumbManager.getInstance().clear();
+        if (_instance !== undefined) {
+          _instance.clearBreadcrumbs();
         }
       },
     };
