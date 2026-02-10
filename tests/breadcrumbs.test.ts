@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BreadcrumbManager } from '../src/modules/breadcrumbs.js';
 import type { Breadcrumb } from '@hawk.so/types';
 
@@ -98,16 +98,35 @@ describe('BreadcrumbManager', () => {
   });
 
   describe('beforeBreadcrumb', () => {
-    it('discards breadcrumb when hook returns null', () => {
+    it('discards breadcrumb when hook returns false', () => {
       const manager = BreadcrumbManager.getInstance();
 
       manager.init({
-        beforeBreadcrumb: () => null,
+        beforeBreadcrumb: () => false,
       });
 
       manager.addBreadcrumb({ type: 'debug', message: 'test', level: 'info' });
 
       expect(manager.getBreadcrumbs()).toHaveLength(0);
+    });
+
+    it('stores original breadcrumb and warns when hook returns null', () => {
+      const manager = BreadcrumbManager.getInstance();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      manager.init({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        beforeBreadcrumb: () => null as any,
+      });
+
+      manager.addBreadcrumb({ type: 'debug', message: 'kept', level: 'info' });
+
+      const crumbs = manager.getBreadcrumbs();
+
+      expect(crumbs).toHaveLength(1);
+      expect(crumbs[0].message).toBe('kept');
+      expect(warnSpy).toHaveBeenCalledWith('[Hawk] beforeBreadcrumb returned nothing, storing original breadcrumb.');
+      warnSpy.mockRestore();
     });
 
     it('allows modifying breadcrumb in hook', () => {
@@ -126,11 +145,70 @@ describe('BreadcrumbManager', () => {
       expect(manager.getBreadcrumbs()[0].message).toBe('modified');
     });
 
+    it('stores original breadcrumb and warns when hook returns undefined (no return)', () => {
+      const manager = BreadcrumbManager.getInstance();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      manager.init({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        beforeBreadcrumb: () => undefined as any,
+      });
+
+      manager.addBreadcrumb({ type: 'debug', message: 'kept', level: 'info' });
+
+      const crumbs = manager.getBreadcrumbs();
+
+      expect(crumbs).toHaveLength(1);
+      expect(crumbs[0].message).toBe('kept');
+      expect(crumbs[0].timestamp).toBeTypeOf('number');
+      expect(warnSpy).toHaveBeenCalledWith('[Hawk] beforeBreadcrumb returned nothing, storing original breadcrumb.');
+      warnSpy.mockRestore();
+    });
+
+    it('stores original breadcrumb and warns when hook returns true (invalid)', () => {
+      const manager = BreadcrumbManager.getInstance();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      manager.init({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        beforeBreadcrumb: () => true as any,
+      });
+
+      manager.addBreadcrumb({ type: 'debug', message: 'kept', level: 'info' });
+
+      const crumbs = manager.getBreadcrumbs();
+
+      expect(crumbs).toHaveLength(1);
+      expect(crumbs[0].message).toBe('kept');
+      expect(warnSpy).toHaveBeenCalledOnce();
+      warnSpy.mockRestore();
+    });
+
+    it('stores original breadcrumb and warns when hook returns object with non-numeric timestamp', () => {
+      const manager = BreadcrumbManager.getInstance();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      manager.init({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        beforeBreadcrumb: () => ({ timestamp: 'not-a-number', message: 'bad' }) as any,
+      });
+
+      manager.addBreadcrumb({ type: 'debug', message: 'original', level: 'info' });
+
+      const crumbs = manager.getBreadcrumbs();
+
+      expect(crumbs).toHaveLength(1);
+      expect(crumbs[0].message).toBe('original');
+      expect(crumbs[0].timestamp).toBeTypeOf('number');
+      expect(warnSpy).toHaveBeenCalledOnce();
+      warnSpy.mockRestore();
+    });
+
     it('filters by category', () => {
       const manager = BreadcrumbManager.getInstance();
 
       manager.init({
-        beforeBreadcrumb: (bc) => (bc.category === 'secret' ? null : bc),
+        beforeBreadcrumb: (bc) => (bc.category === 'secret' ? false : bc),
       });
 
       manager.addBreadcrumb({ type: 'debug', message: 'keep', level: 'info', category: 'public' });

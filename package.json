@@ -28,7 +28,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@hawk.so/types": "^0.3.0",
+    "@hawk.so/types": "^0.5.8",
     "axios": "^0.21.1",
     "stack-trace": "^0.0.10"
   },

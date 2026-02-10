@@ -218,10 +218,10 @@
     "@eslint/core" "^0.17.0"
     levn "^0.4.1"
 
-"@hawk.so/types@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@hawk.so/types/-/types-0.3.0.tgz#3332de27a2dd39832185b8237cb3a1bc4624ec41"
-  integrity sha512-xM7bgVK3+JhXXIKXXDjVufhCIEuesAyA/o2E9qyq8h9zg04fTgwo/dJ8G+wJblu5W3bNNJ1dWllMgqaH1lY8bA==
+"@hawk.so/types@^0.5.8":
+  version "0.5.8"
+  resolved "https://registry.yarnpkg.com/@hawk.so/types/-/types-0.5.8.tgz#4278b489f77b5b0335a04ae8184f87c2112116d0"
+  integrity sha512-3LebU/fFWFCVBHcj8yAyZqjjam9vYo7diRi8BlMBXJ5yC1fE7M44+Zb+lzudHQnysj+ZcHZyBuA/dEpGhB7vxg==
   dependencies:
     bson "^7.0.0"
 
