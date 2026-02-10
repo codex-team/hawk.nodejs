@@ -90,9 +90,23 @@ describe('BreadcrumbManager', () => {
     manager.init();
     manager.addBreadcrumb({ type: 'debug', message: 'test', level: 'info' });
 
-    const crumbs = manager.getBreadcrumbs();
+    const first = manager.getBreadcrumbs();
+    const second = manager.getBreadcrumbs();
 
-    crumbs.push({ type: 'debug', message: 'injected', level: 'info', timestamp: 0 } as Breadcrumb);
+    /**
+     * Different references — proves it's a copy
+     */
+    expect(first).not.toBe(second);
+
+    /**
+     * Same content
+     */
+    expect(first).toEqual(second);
+
+    /**
+     * Mutating the copy does not affect the internal buffer
+     */
+    first.push({ type: 'debug', message: 'injected', level: 'info', timestamp: 0 } as Breadcrumb);
 
     expect(manager.getBreadcrumbs()).toHaveLength(1);
   });

@@ -27,12 +27,10 @@ export interface BreadcrumbsOptions {
 
   /**
    * Hook called before each breadcrumb is stored.
-   *
    * - Return modified breadcrumb — it will be stored instead of the original.
    * - Return `false` — the breadcrumb will be discarded.
    * - Return nothing (`void` / `undefined` / `null`) — the original breadcrumb is stored as-is (a warning is logged).
    * - If the hook returns an invalid value, a warning is logged and the original breadcrumb is stored.
-   *
    * @param breadcrumb - Breadcrumb to store (can be mutated and returned)
    * @param hint - Optional context (e.g. for filtering)
    */
