@@ -203,7 +203,7 @@ HawkCatcher.init({
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `maxBreadcrumbs` | `number` | `15` | Maximum number of breadcrumbs to store. When the limit is reached, oldest breadcrumbs are removed (FIFO). |
-| `beforeBreadcrumb` | `function` | `undefined` | Hook called before each breadcrumb is stored. Receives `(breadcrumb, hint)`. Return modified breadcrumb to store it, `false` to discard, or `void`/`undefined`/`null` to keep original (a warning is logged). Invalid return values are ignored with a warning. |
+| `beforeBreadcrumb` | `function` | `undefined` | Hook called before each breadcrumb is stored. Receives `(breadcrumb, hint)`. Return modified breadcrumb to keep it, `false` to discard. |
 
 #### Manual breadcrumbs
 
