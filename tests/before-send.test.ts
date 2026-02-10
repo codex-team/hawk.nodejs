@@ -177,7 +177,7 @@ describe('beforeSend processing', () => {
     warnSpy.mockRestore();
   });
 
-  it('warns when beforeSend deletes required field', () => {
+  it('sends event as is and warns when beforeSend deletes required field', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     initWithBeforeSend((event) => {
