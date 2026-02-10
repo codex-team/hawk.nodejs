@@ -12,7 +12,7 @@ Initialization params:
 | `release` | string | optional | Unique identifier of the release. |
 | `context` | object | optional | Any data you want to pass with every message. |
 | `disableGlobalErrorsHandling` | boolean | optional | Do not initialize global errors handling |
-| `beforeSend` | function(event) => event \| false \| void | optional | Filter data before sending. Return modified event, `false` to drop the event, or `void`/`undefined`/`null` to keep original. |
+| `beforeSend` | function(event) => event \| false \| void | optional | Filter data before sending. Return modified event, `false` to drop the event. |
 | `breadcrumbs` | `false` or object | optional | Pass `false` to disable. Pass options object to configure (see [Breadcrumbs](#breadcrumbs)). Default: enabled. |
 
 
