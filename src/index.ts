@@ -311,9 +311,20 @@ class Catcher {
       } else if (isValidEventPayload(result)) {
         payload = result;
       } else {
+        let received: string;
+        try {
+          received = JSON.stringify(result);
+        } catch {
+          try {
+            received = String(result);
+          } catch {
+            received = Object.prototype.toString.call(result);
+          }
+        }
+
         console.warn(
           '[Hawk] beforeSend produced invalid payload (missing required fields), sending original. '
-          + `Received: ${JSON.stringify(result)}`
+          + `Received: ${received}`
         );
       }
     }
