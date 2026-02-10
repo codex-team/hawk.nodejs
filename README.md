@@ -12,7 +12,7 @@ Initialization params:
 | `release` | string | optional | Unique identifier of the release. |
 | `context` | object | optional | Any data you want to pass with every message. |
 | `disableGlobalErrorsHandling` | boolean | optional | Do not initialize global errors handling |
-| `beforeSend` | function(event) => event \| null \| void | optional | Filter data before sending. Return modified event, `null` to drop the event, or `void` to keep original. |
+| `beforeSend` | function(event) => event \| false \| void | optional | Filter data before sending. Return modified event, `false` to drop the event, or `void`/`undefined`/`null` to keep original. |
 | `breadcrumbs` | `false` or object | optional | Pass `false` to disable. Pass options object to configure (see [Breadcrumbs](#breadcrumbs)). Default: enabled. |
 
 
@@ -239,8 +239,8 @@ HawkCatcher.breadcrumbs.clear();
 Use the `beforeSend()` hook to filter data before sending to Hawk.
 
 - **Return modified event** — the modified event will be sent
-- **Return `null`** — the event will be dropped entirely
-- **Return nothing (`void`)** — the original event will be sent as-is
+- **Return `false`** — the event will be dropped entirely
+- **Return nothing (`void` / `undefined` / `null`)** — the original event will be sent as-is
 - If `beforeSend` returns an invalid payload, a warning is logged and the original event is sent
 
 ```js
@@ -264,7 +264,7 @@ HawkCatcher.init({
   token: 'INTEGRATION TOKEN',
   beforeSend(event) {
     if (event.title.includes('ignore-me')) {
-      return null;
+      return false;
     }
 
     return event;

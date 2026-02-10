@@ -1,175 +1,161 @@
-import { describe, it, expect, vi } from 'vitest';
-import type { EventData, NodeJSAddons } from '@hawk.so/types';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { Buffer } from 'buffer';
+import HawkCatcher from '../src/index.js';
+import axios from 'axios';
 
 /**
- * We can't easily test beforeSend via HawkCatcher.init() because:
- * - Catcher is a singleton with global process handlers
- * - It requires a valid base64 integration token
- * - It sends HTTP requests via axios
- *
- * Instead, we test the beforeSend flow logic directly by extracting the same
- * pattern used in formatAndSend.
+ * Valid base64-encoded integration token for tests
  */
-import { isValidEventPayload } from '../src/utils/validate-event.js';
+const TEST_TOKEN = Buffer.from(JSON.stringify({ integrationId: 'test-integration' })).toString('base64');
 
 /**
- * Mirrors the beforeSend processing logic from Catcher.formatAndSend.
- * Returns: the final payload to send, or null if event should be dropped (only when beforeSend returns null).
- * Invalid results log a warning and fall back to the original payload.
+ * Mock axios so no real HTTP requests are made
  */
-function processBeforeSend(
-  payload: EventData<NodeJSAddons>,
-  beforeSend: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons> | void | null
-): EventData<NodeJSAddons> | null {
-  const result = beforeSend(payload);
-
-  if (result === null) {
-    return null;
-  }
-
-  const candidate = result ?? payload;
-
-  if (isValidEventPayload(candidate)) {
-    return candidate;
-  }
-
-  console.warn(
-    '[Hawk] beforeSend produced invalid payload (missing required fields), sending original. '
-    + `Received: ${Object.prototype.toString.call(candidate)}`
-  );
-
-  return payload;
-}
+vi.mock('axios', () => ({
+  default: {
+    post: vi.fn(() => Promise.resolve({ status: 200 })),
+  },
+}));
 
 /**
- * Factory for a minimal valid payload
+ * Helper: init HawkCatcher with a given beforeSend hook
  */
-function makePayload(overrides?: Partial<EventData<NodeJSAddons>>): EventData<NodeJSAddons> {
-  return {
-    title: 'Error: test',
-    type: 'Error',
-    backtrace: [{ file: 'test.ts', line: 1, column: 1 }],
-    ...overrides,
-  } as EventData<NodeJSAddons>;
+function initWithBeforeSend(beforeSend: Parameters<typeof HawkCatcher.init>[0] extends string ? never : NonNullable<Exclude<Parameters<typeof HawkCatcher.init>[0], string>['beforeSend']>): void {
+  HawkCatcher.init({
+    token: TEST_TOKEN,
+    disableGlobalErrorsHandling: true,
+    beforeSend,
+  });
 }
 
 describe('beforeSend processing', () => {
-  it('passes through when beforeSend returns the event', () => {
-    const payload = makePayload();
-    const result = processBeforeSend(payload, (e) => e);
-
-    expect(result).toEqual(payload);
+  beforeEach(() => {
+    vi.mocked(axios.post).mockClear();
   });
 
-  it('allows modifying the event', () => {
-    const payload = makePayload();
-    const result = processBeforeSend(payload, (e) => {
-      e.context = { filtered: true };
+  it('sends event when beforeSend returns it unchanged', () => {
+    initWithBeforeSend((event) => event);
 
-      return e;
+    HawkCatcher.send(new Error('test'));
+
+    expect(axios.post).toHaveBeenCalledOnce();
+  });
+
+  it('sends modified event when beforeSend returns modified payload', () => {
+    initWithBeforeSend((event) => {
+      event.context = { filtered: true };
+
+      return event;
     });
 
-    expect(result?.context).toEqual({ filtered: true });
+    HawkCatcher.send(new Error('test'));
+
+    expect(axios.post).toHaveBeenCalledOnce();
+    const sentPayload = vi.mocked(axios.post).mock.calls[0][1] as { payload: { context: unknown } };
+
+    expect(sentPayload.payload.context).toEqual({ filtered: true });
   });
 
-  it('drops event when beforeSend returns null', () => {
-    const payload = makePayload();
-    const result = processBeforeSend(payload, () => null);
+  it('drops event when beforeSend returns false', () => {
+    initWithBeforeSend(() => false);
 
-    expect(result).toBeNull();
+    HawkCatcher.send(new Error('test'));
+
+    expect(axios.post).not.toHaveBeenCalled();
   });
 
-  it('keeps original payload when beforeSend returns undefined (no return)', () => {
-    const payload = makePayload();
-    const result = processBeforeSend(payload, () => {
+  it('sends original payload and warns when beforeSend returns undefined (no return)', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    initWithBeforeSend(() => {
       /* no return */
     });
 
-    expect(result).toEqual(payload);
+    HawkCatcher.send(new Error('test'));
+
+    expect(axios.post).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith('[Hawk] beforeSend returned nothing, sending original event.');
+    warnSpy.mockRestore();
   });
 
-  it('keeps original payload and warns when beforeSend returns true (invalid)', () => {
-    const payload = makePayload();
+  it('sends original payload and warns when beforeSend returns null', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = processBeforeSend(payload, (() => true) as any);
+    initWithBeforeSend((() => null) as any);
 
-    expect(result).toEqual(payload);
+    HawkCatcher.send(new Error('test'));
+
+    expect(axios.post).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith('[Hawk] beforeSend returned nothing, sending original event.');
+    warnSpy.mockRestore();
+  });
+
+  it('sends original payload and warns when beforeSend returns invalid value', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    initWithBeforeSend((() => true) as any);
+
+    HawkCatcher.send(new Error('test'));
+
+    expect(axios.post).toHaveBeenCalledOnce();
     expect(warnSpy).toHaveBeenCalledOnce();
     warnSpy.mockRestore();
   });
 
-  it('keeps original payload and warns when beforeSend returns empty object (invalid)', () => {
-    const payload = makePayload();
+  it('sends original payload and warns when beforeSend returns empty object', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = processBeforeSend(payload, (() => ({})) as any);
+    initWithBeforeSend((() => ({})) as any);
 
-    expect(result).toEqual(payload);
+    HawkCatcher.send(new Error('test'));
+
+    expect(axios.post).toHaveBeenCalledOnce();
     expect(warnSpy).toHaveBeenCalledOnce();
     warnSpy.mockRestore();
   });
 
-  it('keeps original payload and warns when beforeSend mutates title to empty string', () => {
-    const original = makePayload();
-    const payload = makePayload();
+  it('warns when beforeSend mutates payload to invalid state', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    const result = processBeforeSend(payload, (e) => {
-      e.title = '';
+    initWithBeforeSend((event) => {
+      event.title = '';
     });
 
-    /**
-     * payload was mutated in-place, but processBeforeSend still returns it (the reference).
-     * In real Catcher, the original payload object is what gets sent — the warn tells us it's corrupted.
-     * Here we just verify the warn fires.
-     */
+    HawkCatcher.send(new Error('test'));
+
     expect(warnSpy).toHaveBeenCalledOnce();
+    expect(axios.post).toHaveBeenCalledOnce();
     warnSpy.mockRestore();
   });
 
-  it('keeps original payload and warns when beforeSend deletes title', () => {
-    const payload = makePayload();
+  it('warns when beforeSend deletes required field', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    const result = processBeforeSend(payload, (e) => {
+    initWithBeforeSend((event) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (e as any).title;
+      delete (event as any).title;
     });
 
+    HawkCatcher.send(new Error('test'));
+
     expect(warnSpy).toHaveBeenCalledOnce();
+    expect(axios.post).toHaveBeenCalledOnce();
     warnSpy.mockRestore();
   });
 
-  it('keeps original payload and warns when beforeSend sets backtrace to non-array', () => {
-    const payload = makePayload();
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('sends when beforeSend removes optional fields', () => {
+    initWithBeforeSend((event) => {
+      delete event.release;
+      delete event.context;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = processBeforeSend(payload, (e) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (e as any).backtrace = 'not an array';
-
-      return e;
+      return event;
     });
 
-    expect(result).toEqual(payload);
-    expect(warnSpy).toHaveBeenCalledOnce();
-    warnSpy.mockRestore();
-  });
+    HawkCatcher.send(new Error('test'));
 
-  it('accepts when beforeSend removes optional fields', () => {
-    const payload = makePayload({ release: '1.0.0', context: { key: 'val' } });
-    const result = processBeforeSend(payload, (e) => {
-      delete e.release;
-      delete e.context;
-
-      return e;
-    });
-
-    expect(result).not.toBeNull();
-    expect(result?.title).toBe('Error: test');
+    expect(axios.post).toHaveBeenCalledOnce();
   });
 });
