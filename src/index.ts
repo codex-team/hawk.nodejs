@@ -312,6 +312,7 @@ class Catcher {
         payload = result;
       } else {
         let received: string;
+
         try {
           received = JSON.stringify(result);
         } catch {
