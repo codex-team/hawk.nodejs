@@ -30,7 +30,6 @@ export interface BreadcrumbsOptions {
    * - Return modified breadcrumb — it will be stored instead of the original.
    * - Return `false` — the breadcrumb will be discarded.
    * - Any other value is invalid — the original breadcrumb is stored as-is (a warning is logged).
-   *
    * @param breadcrumb - Breadcrumb to store (can be mutated and returned)
    * @param hint - Optional context (e.g. for filtering)
    */
