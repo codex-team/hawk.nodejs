@@ -161,6 +161,27 @@ describe('beforeSend processing', () => {
     expect(payload.backtrace).toBeInstanceOf(Array);
   });
 
+  it('still sends event when structuredClone throws (non-cloneable payload)', () => {
+    // Arrange
+    initWithBeforeSend((event) => event);
+    const cloneSpy = vi.spyOn(globalThis, 'structuredClone').mockImplementation(() => {
+      throw new DOMException('could not be cloned', 'DataCloneError');
+    });
+
+    // Act
+    HawkCatcher.send(new Error('non-cloneable'));
+
+    // Assert — event is still sent, reporting didn't crash
+    expect(axios.post).toHaveBeenCalledOnce();
+
+    const payload = getSentPayload();
+
+    expect(payload.title).toBe('Error: non-cloneable');
+    expect(payload.backtrace).toBeInstanceOf(Array);
+
+    cloneSpy.mockRestore();
+  });
+
   it('sends event without optional fields when beforeSend deletes them', () => {
     initWithBeforeSend((event) => {
       delete event.release;
