@@ -29,8 +29,7 @@ export interface BreadcrumbsOptions {
    * Hook called before each breadcrumb is stored.
    * - Return modified breadcrumb — it will be stored instead of the original.
    * - Return `false` — the breadcrumb will be discarded.
-   * - Return nothing (`void` / `undefined` / `null`) — the original breadcrumb is stored as-is (a warning is logged).
-   * - If the hook returns an invalid value, a warning is logged and the original breadcrumb is stored.
+   * - Any other value is invalid — the original breadcrumb is stored as-is (a warning is logged).
    * @param breadcrumb - Breadcrumb to store (can be mutated and returned)
    * @param hint - Optional context (e.g. for filtering)
    */
@@ -65,6 +64,10 @@ function isValidBreadcrumb(v: unknown): v is Breadcrumb {
   }
 
   const candidate = v as Record<string, unknown>;
+
+  if (typeof candidate.message !== 'string' || candidate.message.trim() === '') {
+    return false;
+  }
 
   if (candidate.timestamp !== undefined && typeof candidate.timestamp !== 'number') {
     return false;
@@ -133,7 +136,19 @@ export class BreadcrumbManager {
     };
 
     if (this.options.beforeBreadcrumb) {
-      const result = this.options.beforeBreadcrumb(bc, hint);
+      let breadcrumbClone: Breadcrumb;
+
+      try {
+        breadcrumbClone = structuredClone(bc);
+      } catch {
+        /**
+         * structuredClone may fail on non-cloneable values in breadcrumb.data
+         * Fall back to passing the original — hook may mutate it, but breadcrumb storage won't crash
+         */
+        breadcrumbClone = bc;
+      }
+
+      const result = this.options.beforeBreadcrumb(breadcrumbClone, hint);
 
       /**
        * false means discard
@@ -143,17 +158,15 @@ export class BreadcrumbManager {
       }
 
       /**
-       * void/undefined/null — warn and keep original breadcrumb
+       * Valid breadcrumb → apply changes from hook
        */
-      if (result === undefined || result === null) {
-        console.warn('[Hawk] beforeBreadcrumb returned nothing, storing original breadcrumb.');
-      } else if (isValidBreadcrumb(result)) {
+      if (isValidBreadcrumb(result)) {
         Object.assign(bc, result);
       } else {
-        console.warn(
-          '[Hawk] beforeBreadcrumb produced invalid breadcrumb (must be an object with numeric timestamp), storing original. '
-          + `Received: ${Object.prototype.toString.call(result)}`
-        );
+        /**
+         * Anything else is invalid — warn, bc stays untouched (hook only received a clone)
+         */
+        console.warn('[Hawk] Invalid beforeBreadcrumb value. It should return breadcrumb or false. Breadcrumb is stored without changes.');
       }
     }
 

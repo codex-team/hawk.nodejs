@@ -70,7 +70,7 @@ class Catcher {
    *
    * - Return modified event — it will be sent instead of the original.
    * - Return `false` — the event will be dropped entirely.
-   * - Return nothing (`void` / `undefined` / `null`) — the original event is sent as-is (a warning is logged).
+   * - Any other value is invalid — the original event is sent as-is (a warning is logged).
    */
   private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons> | false | void;
 
@@ -294,39 +294,37 @@ class Catcher {
      * Filter sensitive data
      */
     if (typeof this.beforeSend === 'function') {
-      const result = this.beforeSend(payload);
+      let eventPayloadClone: EventData<NodeJSAddons>;
+
+      try {
+        eventPayloadClone = structuredClone(payload);
+      } catch {
+        /**
+         * structuredClone may fail on non-cloneable values (functions, class instances, etc.)
+         * Fall back to passing the original — hook may mutate it, but at least reporting won't crash
+         */
+        eventPayloadClone = payload;
+      }
+
+      const result = this.beforeSend(eventPayloadClone);
 
       /**
-       * Allow user to intentionally drop event by returning false
+       * false → drop event
        */
       if (result === false) {
         return;
       }
 
       /**
-       * If user returned nothing (void/undefined/null) — warn and keep original payload
+       * Valid event payload → use it instead of original
        */
-      if (result === undefined || result === null) {
-        console.warn(`[Hawk] Invalid beforeSend value: (${String(result)}). It should return event or false. Event is sent without changes.`);
-      } else if (isValidEventPayload(result)) {
+      if (isValidEventPayload(result)) {
         payload = result;
       } else {
-        let received: string;
-
-        try {
-          received = JSON.stringify(result);
-        } catch {
-          try {
-            received = String(result);
-          } catch {
-            received = Object.prototype.toString.call(result);
-          }
-        }
-
-        console.warn(
-          '[Hawk] beforeSend produced invalid payload (missing required fields), sending original. '
-          + `Received: ${received}`
-        );
+        /**
+         * Anything else is invalid — warn, payload stays untouched (hook only received a clone)
+         */
+        console.warn('[Hawk] Invalid beforeSend value. It should return event or false. Event is sent without changes.');
       }
     }
 

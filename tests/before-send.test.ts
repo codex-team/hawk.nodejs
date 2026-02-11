@@ -94,51 +94,23 @@ describe('beforeSend processing', () => {
     expect(axios.post).not.toHaveBeenCalled();
   });
 
-  it('sends original payload and warns when beforeSend returns undefined (no return)', () => {
-    initWithBeforeSend(() => {
-      /* no return */
-    });
-
-    HawkCatcher.send(new Error('test-undefined'));
-
-    expect(axios.post).toHaveBeenCalledOnce();
-    expect(warnSpy).toHaveBeenCalledOnce();
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[Hawk] Invalid beforeSend value: (undefined). It should return event or false. Event is sent without changes.'
-    );
-
-    const payload = getSentPayload();
-
-    expect(payload.title).toBe('Error: test-undefined');
-    expect(payload.backtrace).toBeInstanceOf(Array);
-  });
-
-  it('sends original payload and warns when beforeSend returns null', () => {
+  it.each([
+    { label: 'undefined', value: undefined },
+    { label: 'null', value: null },
+    { label: 'number (42)', value: 42 },
+    { label: 'string ("oops")', value: 'oops' },
+    { label: 'true', value: true },
+    { label: 'empty object', value: {} },
+  ])('sends original payload and warns when beforeSend returns $label', ({ value }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    initWithBeforeSend((() => null) as any);
-
-    HawkCatcher.send(new Error('test-null'));
-
-    expect(axios.post).toHaveBeenCalledOnce();
-    expect(warnSpy).toHaveBeenCalledOnce();
-    expect(warnSpy).toHaveBeenCalledWith(
-      '[Hawk] Invalid beforeSend value: (null). It should return event or false. Event is sent without changes.'
-    );
-
-    const payload = getSentPayload();
-
-    expect(payload.title).toBe('Error: test-null');
-    expect(payload.backtrace).toBeInstanceOf(Array);
-  });
-
-  it('sends original payload and warns when beforeSend returns invalid value', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    initWithBeforeSend((() => true) as any);
+    initWithBeforeSend(() => value as any);
 
     HawkCatcher.send(new Error('test-invalid'));
 
     expect(axios.post).toHaveBeenCalledOnce();
-    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[Hawk] Invalid beforeSend value. It should return event or false. Event is sent without changes.'
+    );
 
     const payload = getSentPayload();
 
@@ -146,59 +118,68 @@ describe('beforeSend processing', () => {
     expect(payload.backtrace).toBeInstanceOf(Array);
   });
 
-  it('sends original payload and warns when beforeSend returns empty object', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    initWithBeforeSend((() => ({})) as any);
-
-    HawkCatcher.send(new Error('test-empty-obj'));
-
-    expect(axios.post).toHaveBeenCalledOnce();
-    expect(warnSpy).toHaveBeenCalledOnce();
-
-    const payload = getSentPayload();
-
-    expect(payload.title).toBe('Error: test-empty-obj');
-    expect(payload.backtrace).toBeInstanceOf(Array);
-  });
-
-  it('warns when beforeSend mutates payload to invalid state', () => {
+  it('sends original payload and warns when beforeSend mutates title to empty string', () => {
     initWithBeforeSend((event) => {
       event.title = '';
+
+      return event;
     });
 
     HawkCatcher.send(new Error('test-mutated'));
 
-    expect(warnSpy).toHaveBeenCalledOnce();
     expect(axios.post).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[Hawk] Invalid beforeSend value. It should return event or false. Event is sent without changes.'
+    );
 
+    // structuredClone restores original payload
     const payload = getSentPayload();
 
-    /**
-     * payload was mutated in-place (title = ''), so the sent object has the corrupted title.
-     * The warn is the signal — we verify it fired above.
-     * We still check that backtrace survived to confirm the rest of the payload is intact.
-     */
+    expect(payload.title).toBe('Error: test-mutated');
     expect(payload.backtrace).toBeInstanceOf(Array);
   });
 
-  it('sends event as is and warns when beforeSend deletes required field', () => {
+  it('sends original payload and warns when beforeSend deletes required field (title)', () => {
     initWithBeforeSend((event) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (event as any).title;
+
+      return event;
     });
 
     HawkCatcher.send(new Error('test-deleted'));
 
-    expect(warnSpy).toHaveBeenCalledOnce();
+    expect(axios.post).toHaveBeenCalledOnce();
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[Hawk] Invalid beforeSend value. It should return event or false. Event is sent without changes.'
+    );
+
+    // structuredClone restores original payload
+    const payload = getSentPayload();
+
+    expect(payload.title).toBe('Error: test-deleted');
+    expect(payload.backtrace).toBeInstanceOf(Array);
+  });
+
+  it('still sends event when structuredClone throws (non-cloneable payload)', () => {
+    // Arrange
+    initWithBeforeSend((event) => event);
+    const cloneSpy = vi.spyOn(globalThis, 'structuredClone').mockImplementation(() => {
+      throw new DOMException('could not be cloned', 'DataCloneError');
+    });
+
+    // Act
+    HawkCatcher.send(new Error('non-cloneable'));
+
+    // Assert — event is still sent, reporting didn't crash
     expect(axios.post).toHaveBeenCalledOnce();
 
     const payload = getSentPayload();
 
-    /**
-     * title was deleted in-place, so it's undefined on the sent object.
-     * The warn signals the problem. We verify the rest of the payload is intact.
-     */
+    expect(payload.title).toBe('Error: non-cloneable');
     expect(payload.backtrace).toBeInstanceOf(Array);
+
+    cloneSpy.mockRestore();
   });
 
   it('sends event without optional fields when beforeSend deletes them', () => {

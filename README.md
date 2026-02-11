@@ -240,8 +240,7 @@ Use the `beforeSend()` hook to filter data before sending to Hawk.
 
 - **Return modified event** — the modified event will be sent
 - **Return `false`** — the event will be dropped entirely
-- **Return nothing (`void` / `undefined` / `null`)** — the original event will be sent as-is
-- If `beforeSend` returns an invalid payload, a warning is logged and the original event is sent
+- **Any other value is invalid** — the original event is sent as-is (a warning is logged)
 
 ```js
 HawkCatcher.init({
