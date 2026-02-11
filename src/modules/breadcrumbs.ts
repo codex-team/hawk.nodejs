@@ -66,6 +66,10 @@ function isValidBreadcrumb(v: unknown): v is Breadcrumb {
 
   const candidate = v as Record<string, unknown>;
 
+  if (typeof candidate.message !== 'string' || (candidate.message as string).trim() === '') {
+    return false;
+  }
+
   if (candidate.timestamp !== undefined && typeof candidate.timestamp !== 'number') {
     return false;
   }
@@ -133,6 +137,7 @@ export class BreadcrumbManager {
     };
 
     if (this.options.beforeBreadcrumb) {
+      const original = structuredClone(bc);
       const result = this.options.beforeBreadcrumb(bc, hint);
 
       /**
@@ -143,17 +148,16 @@ export class BreadcrumbManager {
       }
 
       /**
-       * void/undefined/null — warn and keep original breadcrumb
+       * Valid breadcrumb → use it
        */
-      if (result === undefined || result === null) {
-        console.warn('[Hawk] beforeBreadcrumb returned nothing, storing original breadcrumb.');
-      } else if (isValidBreadcrumb(result)) {
+      if (isValidBreadcrumb(result)) {
         Object.assign(bc, result);
       } else {
-        console.warn(
-          '[Hawk] beforeBreadcrumb produced invalid breadcrumb (must be an object with numeric timestamp), storing original. '
-          + `Received: ${Object.prototype.toString.call(result)}`
-        );
+        /**
+         * Anything else is invalid — warn and restore original
+         */
+        console.warn('[Hawk] Invalid beforeBreadcrumb value. It should return breadcrumb or false. Breadcrumb is stored without changes.');
+        Object.assign(bc, original);
       }
     }
 

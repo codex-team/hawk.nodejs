@@ -124,25 +124,6 @@ describe('BreadcrumbManager', () => {
       expect(manager.getBreadcrumbs()).toHaveLength(0);
     });
 
-    it('stores original breadcrumb and warns when hook returns null', () => {
-      const manager = BreadcrumbManager.getInstance();
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      manager.init({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        beforeBreadcrumb: () => null as any,
-      });
-
-      manager.addBreadcrumb({ type: 'debug', message: 'kept', level: 'info' });
-
-      const crumbs = manager.getBreadcrumbs();
-
-      expect(crumbs).toHaveLength(1);
-      expect(crumbs[0].message).toBe('kept');
-      expect(warnSpy).toHaveBeenCalledWith('[Hawk] beforeBreadcrumb returned nothing, storing original breadcrumb.');
-      warnSpy.mockRestore();
-    });
-
     it('allows modifying breadcrumb in hook', () => {
       const manager = BreadcrumbManager.getInstance();
 
@@ -159,13 +140,19 @@ describe('BreadcrumbManager', () => {
       expect(manager.getBreadcrumbs()[0].message).toBe('modified');
     });
 
-    it('stores original breadcrumb and warns when hook returns undefined (no return)', () => {
+    it.each([
+      { label: 'undefined', value: undefined },
+      { label: 'null', value: null },
+      { label: 'number (42)', value: 42 },
+      { label: 'string ("oops")', value: 'oops' },
+      { label: 'true', value: true },
+    ])('stores original breadcrumb and warns when hook returns $label', ({ value }) => {
       const manager = BreadcrumbManager.getInstance();
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       manager.init({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        beforeBreadcrumb: () => undefined as any,
+        beforeBreadcrumb: () => value as any,
       });
 
       manager.addBreadcrumb({ type: 'debug', message: 'kept', level: 'info' });
@@ -174,27 +161,9 @@ describe('BreadcrumbManager', () => {
 
       expect(crumbs).toHaveLength(1);
       expect(crumbs[0].message).toBe('kept');
-      expect(crumbs[0].timestamp).toBeTypeOf('number');
-      expect(warnSpy).toHaveBeenCalledWith('[Hawk] beforeBreadcrumb returned nothing, storing original breadcrumb.');
-      warnSpy.mockRestore();
-    });
-
-    it('stores original breadcrumb and warns when hook returns true (invalid)', () => {
-      const manager = BreadcrumbManager.getInstance();
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      manager.init({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        beforeBreadcrumb: () => true as any,
-      });
-
-      manager.addBreadcrumb({ type: 'debug', message: 'kept', level: 'info' });
-
-      const crumbs = manager.getBreadcrumbs();
-
-      expect(crumbs).toHaveLength(1);
-      expect(crumbs[0].message).toBe('kept');
-      expect(warnSpy).toHaveBeenCalledOnce();
+      expect(warnSpy).toHaveBeenCalledWith(
+        '[Hawk] Invalid beforeBreadcrumb value. It should return breadcrumb or false. Breadcrumb is stored without changes.'
+      );
       warnSpy.mockRestore();
     });
 
@@ -214,7 +183,34 @@ describe('BreadcrumbManager', () => {
       expect(crumbs).toHaveLength(1);
       expect(crumbs[0].message).toBe('original');
       expect(crumbs[0].timestamp).toBeTypeOf('number');
-      expect(warnSpy).toHaveBeenCalledOnce();
+      expect(warnSpy).toHaveBeenCalledWith(
+        '[Hawk] Invalid beforeBreadcrumb value. It should return breadcrumb or false. Breadcrumb is stored without changes.'
+      );
+      warnSpy.mockRestore();
+    });
+
+    it('stores original breadcrumb and warns when hook deletes required field (message)', () => {
+      const manager = BreadcrumbManager.getInstance();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      manager.init({
+        beforeBreadcrumb: (bc) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          delete (bc as any).message;
+
+          return bc;
+        },
+      });
+
+      manager.addBreadcrumb({ type: 'debug', message: 'keep-me', level: 'info' });
+
+      const crumbs = manager.getBreadcrumbs();
+
+      expect(crumbs).toHaveLength(1);
+      expect(crumbs[0].message).toBe('keep-me');
+      expect(warnSpy).toHaveBeenCalledWith(
+        '[Hawk] Invalid beforeBreadcrumb value. It should return breadcrumb or false. Breadcrumb is stored without changes.'
+      );
       warnSpy.mockRestore();
     });
 

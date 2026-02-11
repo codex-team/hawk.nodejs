@@ -294,39 +294,27 @@ class Catcher {
      * Filter sensitive data
      */
     if (typeof this.beforeSend === 'function') {
+      const original = structuredClone(payload);
       const result = this.beforeSend(payload);
 
       /**
-       * Allow user to intentionally drop event by returning false
+       * false → drop event
        */
       if (result === false) {
         return;
       }
 
       /**
-       * If user returned nothing (void/undefined/null) — warn and keep original payload
+       * Valid event payload → use it
        */
-      if (result === undefined || result === null) {
-        console.warn(`[Hawk] Invalid beforeSend value: (${String(result)}). It should return event or false. Event is sent without changes.`);
-      } else if (isValidEventPayload(result)) {
+      if (isValidEventPayload(result)) {
         payload = result;
       } else {
-        let received: string;
-
-        try {
-          received = JSON.stringify(result);
-        } catch {
-          try {
-            received = String(result);
-          } catch {
-            received = Object.prototype.toString.call(result);
-          }
-        }
-
-        console.warn(
-          '[Hawk] beforeSend produced invalid payload (missing required fields), sending original. '
-          + `Received: ${received}`
-        );
+        /**
+         * Anything else is invalid — warn and send original
+         */
+        console.warn('[Hawk] Invalid beforeSend value. It should return event or false. Event is sent without changes.');
+        payload = original;
       }
     }
 
