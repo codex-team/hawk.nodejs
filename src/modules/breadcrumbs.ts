@@ -66,7 +66,7 @@ function isValidBreadcrumb(v: unknown): v is Breadcrumb {
 
   const candidate = v as Record<string, unknown>;
 
-  if (typeof candidate.message !== 'string' || (candidate.message as string).trim() === '') {
+  if (typeof candidate.message !== 'string' || candidate.message.trim() === '') {
     return false;
   }
 
@@ -138,20 +138,20 @@ export class BreadcrumbManager {
 
     if (this.options.beforeBreadcrumb) {
       const breadcrumbClone = structuredClone(bc);
-      const modified = this.options.beforeBreadcrumb(breadcrumbClone, hint);
+      const result = this.options.beforeBreadcrumb(breadcrumbClone, hint);
 
       /**
        * false means discard
        */
-      if (modified === false) {
+      if (result === false) {
         return;
       }
 
       /**
        * Valid breadcrumb → apply changes from hook
        */
-      if (isValidBreadcrumb(modified)) {
-        Object.assign(bc, modified);
+      if (isValidBreadcrumb(result)) {
+        Object.assign(bc, result);
       } else {
         /**
          * Anything else is invalid — warn, bc stays untouched (hook only received a clone)

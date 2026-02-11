@@ -295,20 +295,20 @@ class Catcher {
      */
     if (typeof this.beforeSend === 'function') {
       const eventClone = structuredClone(payload);
-      const modified = this.beforeSend(eventClone);
+      const result = this.beforeSend(eventClone);
 
       /**
        * false → drop event
        */
-      if (modified === false) {
+      if (result === false) {
         return;
       }
 
       /**
        * Valid event payload → use it instead of original
        */
-      if (isValidEventPayload(modified)) {
-        payload = modified;
+      if (isValidEventPayload(result)) {
+        payload = result;
       } else {
         /**
          * Anything else is invalid — warn, payload stays untouched (hook only received a clone)
