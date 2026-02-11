@@ -294,27 +294,26 @@ class Catcher {
      * Filter sensitive data
      */
     if (typeof this.beforeSend === 'function') {
-      const original = structuredClone(payload);
-      const result = this.beforeSend(payload);
+      const eventClone = structuredClone(payload);
+      const modified = this.beforeSend(eventClone);
 
       /**
        * false → drop event
        */
-      if (result === false) {
+      if (modified === false) {
         return;
       }
 
       /**
-       * Valid event payload → use it
+       * Valid event payload → use it instead of original
        */
-      if (isValidEventPayload(result)) {
-        payload = result;
+      if (isValidEventPayload(modified)) {
+        payload = modified;
       } else {
         /**
-         * Anything else is invalid — warn and send original
+         * Anything else is invalid — warn, payload stays untouched (hook only received a clone)
          */
         console.warn('[Hawk] Invalid beforeSend value. It should return event or false. Event is sent without changes.');
-        payload = original;
       }
     }
 
