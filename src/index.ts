@@ -70,7 +70,7 @@ class Catcher {
    *
    * - Return modified event — it will be sent instead of the original.
    * - Return `false` — the event will be dropped entirely.
-   * - Return nothing (`void` / `undefined` / `null`) — the original event is sent as-is (a warning is logged).
+   * - Any other value is invalid — the original event is sent as-is (a warning is logged).
    */
   private readonly beforeSend?: (event: EventData<NodeJSAddons>) => EventData<NodeJSAddons> | false | void;
 
@@ -294,7 +294,18 @@ class Catcher {
      * Filter sensitive data
      */
     if (typeof this.beforeSend === 'function') {
-      const eventPayloadClone = structuredClone(payload);
+      let eventPayloadClone: EventData<NodeJSAddons>;
+
+      try {
+        eventPayloadClone = structuredClone(payload);
+      } catch {
+        /**
+         * structuredClone may fail on non-cloneable values (functions, class instances, etc.)
+         * Fall back to passing the original — hook may mutate it, but at least reporting won't crash
+         */
+        eventPayloadClone = payload;
+      }
+
       const result = this.beforeSend(eventPayloadClone);
 
       /**

@@ -29,8 +29,8 @@ export interface BreadcrumbsOptions {
    * Hook called before each breadcrumb is stored.
    * - Return modified breadcrumb — it will be stored instead of the original.
    * - Return `false` — the breadcrumb will be discarded.
-   * - Return nothing (`void` / `undefined` / `null`) — the original breadcrumb is stored as-is (a warning is logged).
-   * - If the hook returns an invalid value, a warning is logged and the original breadcrumb is stored.
+   * - Any other value is invalid — the original breadcrumb is stored as-is (a warning is logged).
+   *
    * @param breadcrumb - Breadcrumb to store (can be mutated and returned)
    * @param hint - Optional context (e.g. for filtering)
    */
@@ -137,7 +137,18 @@ export class BreadcrumbManager {
     };
 
     if (this.options.beforeBreadcrumb) {
-      const breadcrumbClone = structuredClone(bc);
+      let breadcrumbClone: Breadcrumb;
+
+      try {
+        breadcrumbClone = structuredClone(bc);
+      } catch {
+        /**
+         * structuredClone may fail on non-cloneable values in breadcrumb.data
+         * Fall back to passing the original — hook may mutate it, but breadcrumb storage won't crash
+         */
+        breadcrumbClone = bc;
+      }
+
       const result = this.options.beforeBreadcrumb(breadcrumbClone, hint);
 
       /**
